@@ -50,6 +50,7 @@ def create_app(config_object: type = Config) -> Flask:
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-API-Token"
             response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, OPTIONS"
+            response.headers["Access-Control-Max-Age"] = "86400"
         return apply_security_headers(response)
 
     @app.before_request
@@ -62,6 +63,7 @@ def create_app(config_object: type = Config) -> Flask:
                 resp.headers["Access-Control-Allow-Origin"] = origin
                 resp.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-API-Token"
                 resp.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, OPTIONS"
+                resp.headers["Access-Control-Max-Age"] = "86400"
             return resp
 
     @app.before_request

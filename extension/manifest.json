@@ -1,13 +1,21 @@
 {
   "manifest_version": 3,
   "name": "PhishGuard — Email Risk Scanner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatically analyse opened Gmail messages for phishing risk.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://mail.google.com/*",
-    "http://127.0.0.1:5000/*",
-    "http://localhost:5000/*"
+    "http://127.0.0.1/*",
+    "http://127.0.0.1:*/*",
+    "http://localhost/*",
+    "http://localhost:*/*",
+    "http://[::1]/*",
+    "http://[::1]:*/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "background": {
     "service_worker": "background/service-worker.js",
