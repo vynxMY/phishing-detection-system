@@ -1,0 +1,38 @@
+[
+  {
+    "id": "E01",
+    "truth": "phishing",
+    "title": "Fake Microsoft lockout",
+    "email": "From: Microsoft Support <support@micr0soft-security.com>\nReply-To: help@evil-domain.xyz\nSubject: URGENT: Account locked\nAuthentication-Results: spf=fail dkim=fail dmarc=fail\n\nYour Microsoft account will be suspended in 24 hours.\nVerify now: http://microsoft-login.verify-account.xyz/auth\nEnter your password to continue."
+  },
+  {
+    "id": "E02",
+    "truth": "legitimate",
+    "title": "Internal meeting reminder",
+    "email": "From: Jordan Lee <jordan.lee@company.com>\nTo: team@company.com\nSubject: Re: Standup tomorrow\n\nHi team,\nReminder that standup is at 10 AM in Conference Room B.\nPlease bring updates on the release checklist.\n\nThanks,\nJordan"
+  },
+  {
+    "id": "E03",
+    "truth": "phishing",
+    "title": "Gift card prize",
+    "email": "Subject: Congratulations! You won a $500 Amazon gift card\n\nClaim immediately before the offer expires:\nhttp://prize-claim-reward.top/win?ref=4821\nProvide your full name and payment details to receive the card."
+  },
+  {
+    "id": "E04",
+    "truth": "legitimate",
+    "title": "Shipping notification",
+    "email": "From: orders@shop.example.com\nSubject: Your order #88921 has shipped\n\nHi Alex,\nYour order has been shipped and is expected by Friday.\nYou can track it from your account orders page.\n\nThanks for shopping with us."
+  },
+  {
+    "id": "E05",
+    "truth": "phishing",
+    "title": "CEO wire request (BEC-style)",
+    "email": "From: Alex CEO <alex.ceo@companv.com>\nSubject: Urgent wire needed\n\nI'm in a client meeting and need you to send $7,400 to the vendor account below today.\nDo not discuss on chat. Confirm once done.\n\nAccount details in the attached invoice."
+  },
+  {
+    "id": "E06",
+    "truth": "legitimate",
+    "title": "Document review request",
+    "email": "From: Priya Patel <priya.patel@company.com>\nSubject: Please review Q3 draft\n\nHi,\nCould you review the attached draft and send comments by Thursday?\nHappy to discuss in our 1:1 if helpful.\n\nBest,\nPriya"
+  }
+]

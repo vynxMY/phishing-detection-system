@@ -1,0 +1,5 @@
+# Optional frontend image — PSM Core UI is served by Flask/Jinja.
+# Keep this stub so the repo matches the Master Technical Specification layout.
+FROM nginx:alpine
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80

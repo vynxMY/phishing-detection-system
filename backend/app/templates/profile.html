@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<h1 class="page-title">Profile</h1>
+<section class="panel" style="max-width:32rem;">
+  <p><strong>Email</strong><br>{{ current_user.email }}</p>
+  <p><strong>Role</strong><br>{{ current_user.role }}</p>
+  <p><strong>Member since</strong><br>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '—' }}</p>
+  <p><strong>Total scans</strong><br>{{ total_scans }}</p>
+  <p class="muted" style="font-size:0.9rem;">
+    Privacy: raw email bodies are not permanently stored. Only scores, feature summaries, and explanations are kept.
+  </p>
+</section>
+{% endblock %}

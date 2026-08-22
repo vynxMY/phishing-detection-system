@@ -1,0 +1,33 @@
+# Cloud PaaS entry (Render / Railway / Hugging Face Spaces look here by default).
+# Keep in sync with docker/Dockerfile.backend.
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PORT=8000 \
+    NLTK_DATA=/usr/local/share/nltk_data
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libxml2 \
+    libxslt1.1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements-prod.txt .
+RUN pip install --no-cache-dir -r requirements-prod.txt
+
+COPY paths.py ./paths.py
+COPY backend ./backend
+COPY gmail ./gmail
+COPY ml ./ml
+COPY docker/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh \
+    && mkdir -p /app/backend/instance /app/backend/data /var/log/phishing \
+    && python -m nltk.downloader -d /usr/local/share/nltk_data stopwords || true
+
+EXPOSE 8000
+
+ENTRYPOINT ["/entrypoint.sh"]

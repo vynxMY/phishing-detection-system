@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# ML data & artifacts
+ml/datasets/raw/*
+!ml/datasets/raw/.gitkeep
+ml/datasets/processed/*.csv
+ml/datasets/processed/*.json
+ml/models/artifacts/*
+!ml/models/artifacts/.gitkeep
+!ml/models/artifacts/*.joblib
+!ml/models/artifacts/*.json
+ml/evaluation/reports/*
+!ml/evaluation/reports/.gitkeep
+
+# App
+backend/instance/*
+!backend/instance/.gitkeep
+*.db
+
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local tooling
+.cursor/

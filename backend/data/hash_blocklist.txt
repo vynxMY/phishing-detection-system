@@ -1,0 +1,4 @@
+# Local malicious file hash blocklist (SHA-256, one per line)
+# Add known-bad hashes here for Sprint 9 static analysis.
+# Example (fake):
+# e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855

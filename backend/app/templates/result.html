@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Scan Result{% endblock %}
+{% block content %}
+<section class="panel risk-hero">
+  <div class="muted">Scan #{{ scan.id }} · {{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at else '' }}</div>
+  <div class="risk-score">{{ scan.risk_score }}<span style="font-size:1.2rem;color:var(--muted);">/100</span></div>
+  <div>
+    <span class="badge {{ scan.classification }}">{{ scan.classification.replace('_', ' ') }}</span>
+    {% if scan.confidence %}
+      <span class="muted" style="margin-left:0.6rem;">Confidence {{ '%.0f'|format(scan.confidence * 100) }}%</span>
+    {% endif %}
+  </div>
+  <p style="margin:0.4rem 0 0;">{{ scan.explanations.simple or 'No summary available.' }}</p>
+  <p class="muted" style="margin:0.2rem 0 0;font-size:0.9rem;">
+    Subject: {{ scan.subject }} · From: {{ scan.sender }}
+    {% if scan.model_version %} · Model {{ scan.model_version }}{% endif %}
+  </p>
+</section>
+
+<div class="grid-2" style="margin-top:1rem;">
+  <section class="panel">
+    <h2>Risk breakdown</h2>
+    <div class="breakdown">
+      {% for cat, pts in scan.breakdown.items() %}
+      <div class="breakdown-row">
+        <span>{{ cat }}</span>
+        <div class="bar"><span style="width: {{ [pts * 4, 100]|min }}%;"></span></div>
+        <span>+{{ pts }}</span>
+      </div>
+      {% else %}
+      <p class="muted">No breakdown available.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>What should I do?</h2>
+    <div class="advice-grid">
+      <div>
+        <strong>Do not</strong>
+        <ul class="advice-list do-not">
+          {% for item in scan.advice.get('do_not', []) %}
+          <li>{{ item }}</li>
+          {% else %}
+          <li class="muted">No restrictions listed.</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <strong>Do</strong>
+        <ul class="advice-list do">
+          {% for item in scan.advice.get('do', []) %}
+          <li>{{ item }}</li>
+          {% else %}
+          <li class="muted">No actions listed.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:1rem;">
+  <h2>Why is this dangerous?</h2>
+  <ul class="findings">
+    {% for f in scan.findings %}
+    <li class="finding {{ f.severity }}">
+      <strong>{{ f.category|upper }}</strong>
+      <div>{{ f.text }}</div>
+    </li>
+    {% else %}
+    <li class="muted">No detailed findings recorded.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<div class="cta-row" style="margin-top:1.25rem;">
+  <a class="btn btn-primary" href="{{ url_for('main.scan') }}">Scan another</a>
+  <a class="btn btn-ghost" href="{{ url_for('main.history') }}">History</a>
+</div>
+
+<section class="panel" style="margin-top:1.25rem;">
+  <h2>Was this result correct?</h2>
+  <form class="form wide" method="post" action="{{ url_for('feedback.submit_feedback') }}">
+    {% include "_csrf.html" %}
+    <input type="hidden" name="scan_id" value="{{ scan.id }}">
+    <label>Feedback
+      <select name="is_correct" id="is_correct" required>
+        <option value="">Select…</option>
+        <option value="yes">👍 Yes — correct</option>
+        <option value="no">👎 No — incorrect</option>
+      </select>
+    </label>
+    <label>If incorrect, what was the correct classification?
+      <select name="actual_label">
+        <option value="">—</option>
+        <option value="legitimate">Legitimate</option>
+        <option value="phishing">Phishing</option>
+      </select>
+    </label>
+    <fieldset style="border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;">
+      <legend class="muted">What did we get wrong? (optional)</legend>
+      {% for cat in ['sender','url','content','attachment','authentication','other'] %}
+      <label style="display:inline-flex;align-items:center;gap:0.35rem;margin-right:0.8rem;color:var(--text);">
+        <input type="checkbox" name="error_categories" value="{{ cat }}"> {{ cat }}
+      </label>
+      {% endfor %}
+    </fieldset>
+    <button class="btn btn-primary" type="submit">Submit feedback</button>
+  </form>
+  <p class="muted" style="font-size:0.88rem;margin-top:0.75rem;">
+    Feedback is reviewed by an administrator before it can enter any training dataset. Production models are never retrained instantly.
+  </p>
+</section>
+{% endblock %}

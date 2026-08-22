@@ -1,0 +1,25 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Connect this GitHub repo in the Render dashboard, or use "New > Blueprint".
+services:
+  - type: web
+    name: phishing-detection
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHONPATH
+        value: /app
+      - key: MODEL_VERSION
+        value: v1.0.0
+      - key: PREFERRED_URL_SCHEME
+        value: https
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_URL
+        value: sqlite:////app/backend/instance/phishing.db
+      - key: WEB_WORKERS
+        value: "2"

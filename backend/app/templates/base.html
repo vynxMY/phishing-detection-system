@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PhishGuard{% endblock %} · ML Phishing Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="{{ url_for('main.landing') if not current_user else url_for('main.dashboard') }}">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PhishGuard
+      </a>
+      <nav class="nav-links">
+        {% if current_user %}
+          <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('main.scan') }}">Scan</a>
+          <a href="{{ url_for('main.history') }}">History</a>
+          <a href="{{ url_for('main.learn') }}">Learn</a>
+          <a href="{{ url_for('gmail.integrations') }}">Integrations</a>
+          <a href="{{ url_for('main.profile') }}">Profile</a>
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('main.admin') }}">Admin</a>
+            <a href="{{ url_for('feedback.admin_feedback') }}">Feedback</a>
+          {% endif %}
+          <a href="{{ url_for('auth.logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">Login</a>
+          <a class="btn btn-primary" href="{{ url_for('auth.register') }}" style="padding:0.45rem 0.9rem;font-size:0.9rem;">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Machine Learning-Based Phishing Email Detection System · PSM prototype
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Scan Email{% endblock %}
+{% block content %}
+<h1 class="page-title">Scan email</h1>
+<p class="muted" style="margin-top:-0.75rem;margin-bottom:1.25rem;">
+  Paste headers and body, or upload a <code>.eml</code> file. Raw email content is analysed in memory and not stored by default.
+</p>
+
+<section class="panel">
+  <form class="form wide" method="post" enctype="multipart/form-data">
+    {% include "_csrf.html" %}
+    <label>Email content
+      <textarea name="email_text" placeholder="From: ...&#10;Subject: ...&#10;&#10;Body...">{{ email_text or '' }}</textarea>
+    </label>
+    <label>Or upload .eml
+      <input type="file" name="eml_file" accept=".eml,message/rfc822,text/plain">
+    </label>
+    <button class="btn btn-primary" type="submit">Analyse email</button>
+  </form>
+</section>
+{% endblock %}

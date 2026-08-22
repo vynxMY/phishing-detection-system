@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-brand">PhishGuard</div>
+  <h1>Detect phishing before you click.</h1>
+  <p class="lede">
+    Paste an email or upload a message. Get a 0–100 risk score, clear explanations,
+    and practical advice — powered by machine learning and multi-signal analysis.
+  </p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Get started</a>
+    <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Log in</a>
+  </div>
+</section>
+
+<section class="feature-strip">
+  <article>
+    <h3>ML classification</h3>
+    <p>Logistic Regression with TF-IDF and n-grams, fused with rule-based signals.</p>
+  </article>
+  <article>
+    <h3>Explainable risk</h3>
+    <p>See why an email is risky — URLs, sender mismatch, authentication, and more.</p>
+  </article>
+  <article>
+    <h3>Actionable advice</h3>
+    <p>Clear do / don’t guidance so users know what to do next.</p>
+  </article>
+</section>
+{% endblock %}

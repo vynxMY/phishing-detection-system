@@ -1,0 +1,78 @@
+#phishguard-root {
+  all: initial;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+#phishguard-root .pg-banner {
+  position: fixed;
+  top: 64px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #0b1215;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+#phishguard-root .pg-panel {
+  position: fixed;
+  top: 110px;
+  right: 24px;
+  z-index: 999999;
+  width: min(360px, calc(100vw - 32px));
+  max-height: 60vh;
+  overflow: auto;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #121c21;
+  color: #e8eef1;
+  font-size: 13px;
+  line-height: 1.45;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+#phishguard-root .pg-panel ul {
+  margin: 8px 0;
+  padding-left: 18px;
+}
+
+#phishguard-root .pg-safe { background: #3dba7c; }
+#phishguard-root .pg-low { background: #4da3ff; }
+#phishguard-root .pg-warn { background: #e0a100; }
+#phishguard-root .pg-high { background: #e85d4c; color: #fff; }
+#phishguard-root .pg-critical { background: #b42318; color: #fff; }
+
+#phishguard-root .pg-panel.pg-safe,
+#phishguard-root .pg-panel.pg-low,
+#phishguard-root .pg-panel.pg-warn,
+#phishguard-root .pg-panel.pg-high,
+#phishguard-root .pg-panel.pg-critical {
+  background: #121c21;
+  border: 1px solid #2a3b44;
+}
+
+#phishguard-root button {
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font: inherit;
+}
+
+#phishguard-root .pg-close {
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+}
+
+#phishguard-root .pg-rescan {
+  margin-top: 8px;
+  background: #2ec4b6;
+  color: #062421;
+  font-weight: 600;
+}

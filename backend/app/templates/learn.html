@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Learning Centre{% endblock %}
+{% block content %}
+<h1 class="page-title">Security awareness</h1>
+<p class="muted" style="margin-top:-0.5rem;margin-bottom:1.25rem;">Short lessons to spot phishing in everyday email.</p>
+
+<div class="grid-2">
+  <article class="panel">
+    <h2>Check the real URL</h2>
+    <p>Hover before you click. The text you see may not match the actual destination. Watch for extra subdomains, misspellings, and unusual endings like <code>.xyz</code> or <code>.top</code>.</p>
+  </article>
+  <article class="panel">
+    <h2>Sender vs Reply-To</h2>
+    <p>Attackers often display a trusted name while routing replies elsewhere. Compare the From domain with Reply-To and Return-Path when headers are available.</p>
+  </article>
+  <article class="panel">
+    <h2>Urgency is a tactic</h2>
+    <p>Messages that demand immediate action — “account suspended”, “final notice”, “within 24 hours” — are designed to skip your normal caution.</p>
+  </article>
+  <article class="panel">
+    <h2>Authentication is evidence</h2>
+    <p>SPF, DKIM, or DMARC failures are warning signals, not absolute proof. Combine them with URL and sender checks before deciding.</p>
+  </article>
+</div>
+{% endblock %}

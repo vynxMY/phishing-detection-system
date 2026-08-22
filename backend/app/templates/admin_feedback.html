@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Feedback Review{% endblock %}
+{% block content %}
+<h1 class="page-title">Feedback review</h1>
+<p class="muted" style="margin-top:-0.5rem;">Approve feedback before it can be exported for offline retraining.</p>
+
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2>Pending</h2>
+  {% if pending %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Scan</th><th>Correct?</th><th>Actual</th><th>Categories</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for fb in pending %}
+        <tr>
+          <td>{{ fb.id }}</td>
+          <td><a href="{{ url_for('main.scan_result', scan_id=fb.scan_id) }}">#{{ fb.scan_id }}</a></td>
+          <td>{{ 'Yes' if fb.is_correct else 'No' }}</td>
+          <td>{{ fb.actual_label or '—' }}</td>
+          <td class="muted">{{ fb.error_categories or '[]' }}</td>
+          <td>
+            <form method="post" action="{{ url_for('feedback.review_feedback', feedback_id=fb.id) }}" style="display:inline;">
+    {% include "_csrf.html" %}
+              <button class="btn btn-primary" name="action" value="approve" type="submit" style="padding:0.35rem 0.7rem;font-size:0.85rem;">Approve</button>
+              <button class="btn btn-ghost" name="action" value="reject" type="submit" style="padding:0.35rem 0.7rem;font-size:0.85rem;">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">No pending feedback.</p>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2>Recently reviewed</h2>
+  {% if reviewed %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Scan</th><th>Approved</th><th>Actual</th></tr></thead>
+      <tbody>
+        {% for fb in reviewed %}
+        <tr>
+          <td>{{ fb.id }}</td>
+          <td>#{{ fb.scan_id }}</td>
+          <td>{{ 'Yes' if fb.approved else 'No' }}</td>
+          <td>{{ fb.actual_label or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Nothing reviewed yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

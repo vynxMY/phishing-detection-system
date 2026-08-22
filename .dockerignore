@@ -1,0 +1,27 @@
+.git
+.gitignore
+.venv
+.venv-win
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.env
+.env.*
+!.env.example
+
+# Training data is not needed at runtime (models are copied from artifacts)
+ml/datasets
+ml/evaluation
+ml/training
+ml/preprocessing
+
+frontend
+extension
+docs
+*.md
+backend/instance/*.db
+backend/tests
+scripts
+agent-transcripts
+terminals

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Integrations{% endblock %}
+{% block content %}
+<h1 class="page-title">Integrations & privacy</h1>
+
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2>Browser extension API token</h2>
+  <p class="muted">Paste this token into the Chrome/Edge extension settings. It authenticates scans without storing your password in the extension.</p>
+  <p><code style="font-family:var(--mono);word-break:break-all;">{{ settings.api_token }}</code></p>
+  <form method="post" action="{{ url_for('gmail.rotate_token') }}">
+    {% include "_csrf.html" %}
+    <button class="btn btn-ghost" type="submit">Rotate token</button>
+  </form>
+</section>
+
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2>Scanning preferences</h2>
+  <form class="form" method="post" action="{{ url_for('gmail.save_prefs') }}">
+    {% include "_csrf.html" %}
+    <label style="display:flex;align-items:center;gap:0.5rem;color:var(--text);">
+      <input type="checkbox" name="auto_scan" value="1" {% if settings.auto_scan %}checked{% endif %}> Automatic scanning
+    </label>
+    <label style="display:flex;align-items:center;gap:0.5rem;color:var(--text);">
+      <input type="checkbox" name="scan_attachments" value="1" {% if settings.scan_attachments %}checked{% endif %}> Scan attachments
+    </label>
+    <label style="display:flex;align-items:center;gap:0.5rem;color:var(--text);">
+      <input type="checkbox" name="show_warnings" value="1" {% if settings.show_warnings %}checked{% endif %}> Show warnings
+    </label>
+    <label>Explanation level
+      <select name="explanation_level">
+        {% for level in ['simple','detailed','technical'] %}
+        <option value="{{ level }}" {% if settings.explanation_level == level %}selected{% endif %}>{{ level }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-primary" type="submit">Save preferences</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Gmail connection</h2>
+  {% if settings.gmail_connected %}
+    <p>Connected{% if settings.gmail_email %} as <strong>{{ settings.gmail_email }}</strong>{% endif %}.</p>
+    <form method="post" action="{{ url_for('gmail.disconnect') }}">
+    {% include "_csrf.html" %}
+      <button class="btn btn-danger" type="submit">Disconnect Gmail</button>
+    </form>
+  {% else %}
+    <p class="muted">Connect Gmail via Google OAuth for API-based message scanning (optional). The browser extension works without this.</p>
+    {% if google_configured %}
+      <a class="btn btn-primary" href="{{ url_for('gmail.connect') }}">Connect Gmail</a>
+    {% else %}
+      <p class="muted">Set <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> environment variables to enable OAuth.</p>
+    {% endif %}
+  {% endif %}
+  <p class="muted" style="margin-top:1rem;font-size:0.9rem;">
+    Privacy default: raw email bodies are analysed temporarily and not permanently stored. Only scores, features, and explanations are saved.
+  </p>
+</section>
+{% endblock %}

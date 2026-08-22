@@ -1,0 +1,38 @@
+# fly.io — https://fly.io/docs/launch/
+# Deploy: fly launch --copy-config --remote-only
+# Secrets: fly secrets set SECRET_KEY=<random>
+
+app = "phishing-detection-psm"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PYTHONPATH = "/app"
+  PORT = "8000"
+  MODEL_VERSION = "v1.0.0"
+  PREFERRED_URL_SCHEME = "https"
+  SESSION_COOKIE_SECURE = "true"
+  DATABASE_URL = "sqlite:////app/backend/instance/phishing.db"
+  WEB_WORKERS = "2"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "45s"
+  interval = "30s"
+  timeout = "10s"
+  method = "GET"
+  path = "/api/v1/health"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -1,0 +1,5 @@
+participant_id,email_id,phase,user_label,confidence_1_to_5,explanation_useful_1_to_5,trust_1_to_5,notes
+P01,E01,A,phishing,4,,,
+P01,E01,B,phishing,5,5,4,
+P01,E02,A,legitimate,3,,,
+P01,E02,B,legitimate,4,4,4,

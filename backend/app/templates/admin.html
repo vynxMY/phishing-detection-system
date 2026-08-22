@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<h1 class="page-title">Administrator dashboard</h1>
+
+<div class="grid-4" style="margin-bottom:1.5rem;">
+  <div class="stat"><div class="label">Users</div><div class="value">{{ stats.users }}</div></div>
+  <div class="stat"><div class="label">Scans</div><div class="value">{{ stats.scans }}</div></div>
+  <div class="stat"><div class="label">Phishing</div><div class="value">{{ stats.phishing }}</div></div>
+  <div class="stat"><div class="label">Avg risk</div><div class="value">{{ stats.avg_risk }}</div></div>
+</div>
+
+<div class="grid-2">
+  <section class="panel">
+    <h2>Users</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            <td class="muted">{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Recent scans</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Score</th><th>Result</th><th>Subject</th></tr></thead>
+        <tbody>
+          {% for s in recent_scans %}
+          <tr>
+            <td>{{ s.risk_score }}</td>
+            <td><span class="badge {{ s.classification }}">{{ s.classification.replace('_', ' ') }}</span></td>
+            <td>{{ s.subject }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

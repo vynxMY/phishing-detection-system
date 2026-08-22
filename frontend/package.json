@@ -1,0 +1,9 @@
+{
+  "name": "phishing-detection-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Placeholder for future React SPA. PSM Core UI is Jinja under backend/app/templates/.",
+  "scripts": {
+    "note": "echo 'React SPA not started yet — see README.md'"
+  }
+}

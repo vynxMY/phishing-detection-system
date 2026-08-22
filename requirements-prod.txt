@@ -1,0 +1,16 @@
+# Runtime-only dependencies for Docker / Render / Railway.
+# Training extras (huggingface datasets, tqdm) are omitted to keep the image small.
+numpy>=1.24
+pandas>=2.0
+scikit-learn==1.9.0
+nltk>=3.8
+joblib>=1.3
+requests>=2.31
+beautifulsoup4>=4.12
+bleach>=6.0
+lxml>=4.9
+flask>=3.0
+flask-sqlalchemy>=3.1
+werkzeug>=3.0
+python-dotenv>=1.0
+gunicorn>=22.0

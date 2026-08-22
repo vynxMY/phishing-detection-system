@@ -1,0 +1,3 @@
+# Install from repository root so shared deps stay in sync:
+#   pip install -r requirements.txt
+-r ../requirements.txt
