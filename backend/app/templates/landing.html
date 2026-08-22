@@ -3,10 +3,10 @@
 {% block content %}
 <section class="hero">
   <div class="hero-brand">PhishGuard</div>
-  <h1>Detect phishing before you click.</h1>
+  <h1>Understand phishing before you click.</h1>
   <p class="lede">
-    Paste an email or upload a message. Get a 0–100 risk score, clear explanations,
-    and practical advice — powered by machine learning and multi-signal analysis.
+    Paste an email. Logistic Regression classifies it as phishing or legitimate,
+    then explains suspicious URLs, sender mismatches, and risky language so you know why.
   </p>
   <div class="cta-row">
     <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Get started</a>
@@ -16,16 +16,16 @@
 
 <section class="feature-strip">
   <article>
-    <h3>ML classification</h3>
-    <p>Logistic Regression with TF-IDF and n-grams, fused with rule-based signals.</p>
+    <h3>Logistic Regression</h3>
+    <p>One main model: TF-IDF baseline versus TF-IDF plus URL and metadata features.</p>
   </article>
   <article>
-    <h3>Explainable risk</h3>
-    <p>See why an email is risky — URLs, sender mismatch, authentication, and more.</p>
+    <h3>Explainable results</h3>
+    <p>See why — suspicious URLs, sender mismatch, urgent language, and risky phrases.</p>
   </article>
   <article>
-    <h3>Actionable advice</h3>
-    <p>Clear do / don’t guidance so users know what to do next.</p>
+    <h3>User awareness</h3>
+    <p>Clear do / don’t advice so the result teaches you what to look for next time.</p>
   </article>
 </section>
 {% endblock %}

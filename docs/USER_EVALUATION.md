@@ -1,8 +1,12 @@
-# User Evaluation Protocol — Sprint 16 (Explainability)
+# User Evaluation Protocol — Experiment 3 (User Awareness)
+
+**PSM Core.** The official title includes *user awareness*; ML metrics (Experiments 1–2) are not sufficient on their own.
 
 ## Goal
 
-Measure whether PhishGuard explanations help users make better, more confident decisions about phishing emails.
+Measure whether the system's **explanations** help users identify phishing more accurately and confidently than unaided inspection.
+
+Do **not** invent percentages. Report only what participants actually scored.
 
 ## Participants
 
@@ -19,14 +23,14 @@ Measure whether PhishGuard explanations help users make better, more confident d
 
 ## Procedure (per participant, ~25–35 minutes)
 
-### Phase A — Baseline (no system)
+### Phase A — Before the system (baseline awareness)
 
 For each of 6 emails:
 
 1. Show the email only
 2. Ask: Is this phishing or legitimate?
 3. Ask confidence (1–5)
-4. Do **not** show PhishGuard yet
+4. Do **not** show the detector yet
 
 ### Phase B — With PhishGuard
 
