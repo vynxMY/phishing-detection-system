@@ -72,7 +72,19 @@
 
 #phishguard-root .pg-rescan {
   margin-top: 8px;
-  background: #2ec4b6;
-  color: #062421;
+  background: #2563eb;
+  color: #fff;
   font-weight: 600;
+}
+
+#phishguard-root .pg-full {
+  display: inline-block;
+  margin-top: 10px;
+  margin-right: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
 }

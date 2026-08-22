@@ -7,7 +7,7 @@ from functools import wraps
 from flask import Blueprint, current_app, g, jsonify, request
 
 from backend.app.api.feedback_routes import get_or_create_settings
-from backend.app.api.main_routes import get_pipeline
+from backend.app.api.main_routes import get_pipeline, _normalize_url, run_url_scan
 from backend.app.database import User, UserSettings, db
 from backend.app.services.scans import save_scan_result
 
@@ -84,6 +84,7 @@ def extension_scan():
 
     return jsonify({
         "scan_id": scan_row.id,
+        "analysis_path": f"/scan/{scan_row.id}",
         "risk_score": result["risk_score"],
         "classification": result["classification"],
         "confidence": result["confidence"],
@@ -91,6 +92,32 @@ def extension_scan():
         "explanations": {
             "simple": result["explanations"].get("simple"),
             "findings": result["explanations"].get("findings", [])[:8],
+        },
+        "advice": result.get("advice"),
+        "model_version": result.get("model_version"),
+    })
+
+
+@api_bp.route("/extension/scan-url", methods=["POST"])
+@api_token_required
+def extension_scan_url():
+    """Scan the current tab URL with the same Logistic Regression pipeline as the web URL scanner."""
+    data = request.get_json(silent=True) or {}
+    target = _normalize_url(data.get("url") or "")
+    if target is None:
+        return jsonify({"error": {"code": "VALIDATION_ERROR", "message": "Enter a valid http(s) URL."}}), 400
+    scan_row, result = run_url_scan(g.api_user, target)
+    findings = (result.get("explanations") or {}).get("findings", [])[:5]
+    return jsonify({
+        "scan_id": scan_row.id,
+        "analysis_path": f"/scan/{scan_row.id}",
+        "url": target,
+        "risk_score": result["risk_score"],
+        "classification": result["classification"],
+        "confidence": result["confidence"],
+        "explanations": {
+            "simple": result["explanations"].get("simple"),
+            "findings": findings,
         },
         "advice": result.get("advice"),
         "model_version": result.get("model_version"),

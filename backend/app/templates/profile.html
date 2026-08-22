@@ -1,14 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Profile{% endblock %}
+{% block title %}Settings{% endblock %}
 {% block content %}
-<h1 class="page-title">Profile</h1>
-<section class="panel" style="max-width:32rem;">
+<h1 class="page-title">Settings</h1>
+<section class="panel" style="max-width:36rem;margin-bottom:1.25rem;">
+  <h2>Account</h2>
   <p><strong>Email</strong><br>{{ current_user.email }}</p>
   <p><strong>Role</strong><br>{{ current_user.role }}</p>
-  <p><strong>Member since</strong><br>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '—' }}</p>
-  <p><strong>Total scans</strong><br>{{ total_scans }}</p>
-  <p class="muted" style="font-size:0.9rem;">
-    Privacy: raw email bodies are not permanently stored. Only scores, feature summaries, and explanations are kept.
+  <p><strong>Member since</strong><br>{{ current_user.created_at.strftime('%d %b %Y') if current_user.created_at else '—' }}</p>
+  <p><strong>Analyses saved</strong><br>{{ total_scans }}</p>
+</section>
+<section class="panel" style="max-width:36rem;">
+  <h2>Privacy</h2>
+  <p class="muted" style="margin:0;">
+    Raw email bodies are analysed in memory and are not stored by default.
+    The history keeps the target (subject or URL), sender summary, classification, risk score, feature signals, and the explanation text.
+  </p>
+  <p style="margin:1rem 0 0;">
+    <a href="{{ url_for('gmail.integrations') }}">Browser extension token and Gmail options</a>
   </p>
 </section>
 {% endblock %}

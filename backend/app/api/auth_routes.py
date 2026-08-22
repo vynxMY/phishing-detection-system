@@ -6,7 +6,7 @@ import re
 
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
-from backend.app.auth.helpers import login_required, login_user, logout_user
+from backend.app.auth.helpers import login_required, login_user, logout_user, safe_next_url
 from backend.app.database import User, db
 from backend.app.security import rate_limit
 
@@ -50,7 +50,7 @@ def register():
 @rate_limit(10, 60, key_fn=lambda: f"login:{request.remote_addr}")
 def login():
     if g.user:
-        return redirect(url_for("main.dashboard"))
+        return redirect(safe_next_url(request.args.get("next")))
 
     if request.method == "POST":
         email = (request.form.get("email") or "").strip().lower()
@@ -61,10 +61,12 @@ def login():
         else:
             login_user(user)
             flash("Logged in successfully.", "success")
-            next_url = request.args.get("next") or url_for("main.dashboard")
-            return redirect(next_url)
+            return redirect(safe_next_url(request.form.get("next") or request.args.get("next")))
 
-    return render_template("auth/login.html")
+    return render_template(
+        "auth/login.html",
+        next=request.form.get("next") or request.args.get("next") or "",
+    )
 
 
 @auth_bp.route("/logout")

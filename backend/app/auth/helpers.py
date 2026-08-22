@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import wraps
 
-from flask import flash, g, redirect, session, url_for
+from flask import flash, g, redirect, request, session, url_for
 
 from backend.app.database import User, db
 
@@ -28,12 +28,25 @@ def logout_user() -> None:
     session.clear()
 
 
+def safe_next_url(value: str | None, fallback: str | None = None) -> str:
+    """Allow only same-origin relative paths (no open redirects)."""
+    fallback = fallback or url_for("main.dashboard")
+    if not value:
+        return fallback
+    if value.startswith("/") and not value.startswith("//"):
+        return value
+    return fallback
+
+
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         if g.get("user") is None:
             flash("Please log in to continue.", "warning")
-            return redirect(url_for("auth.login"))
+            nxt = request.path
+            if request.query_string:
+                nxt = f"{nxt}?{request.query_string.decode()}"
+            return redirect(url_for("auth.login", next=nxt))
         return view(*args, **kwargs)
 
     return wrapped

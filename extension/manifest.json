@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "PhishGuard — Email Risk Scanner",
-  "version": "1.0.1",
-  "description": "Automatically analyse opened Gmail messages for phishing risk.",
+  "name": "PhishGuard — Explainable Risk Scanner",
+  "version": "1.0.2",
+  "description": "Scan the current site or opened Gmail messages. Full explanations open on the PhishGuard website.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://mail.google.com/*",

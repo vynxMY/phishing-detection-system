@@ -42,9 +42,23 @@
           <strong>Do not:</strong>
           <ul>${(result.advice?.do_not || []).map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
         </div>
+        <a class="pg-full" href="#" target="_blank" rel="noopener">View full analysis</a>
         <button type="button" class="pg-rescan">Rescan</button>
       </aside>
     `;
+
+    const full = root.querySelector(".pg-full");
+    if (full && result.scan_id) {
+      chrome.runtime.sendMessage({ type: "GET_CONFIG" }, (cfg) => {
+        if (cfg?.apiBase) {
+          full.href = `${String(cfg.apiBase).replace(/\/+$/, "")}/scan/${result.scan_id}`;
+        } else {
+          full.remove();
+        }
+      });
+    } else if (full) {
+      full.remove();
+    }
 
     root.querySelector(".pg-close")?.addEventListener("click", () => {
       root.innerHTML = "";

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Detection Report{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="hero-brand">PhishGuard</p>
+  <h1 class="page-title">Phishing detection report</h1>
+  <p><strong>Target</strong><br>{{ scan.subject }}</p>
+  {% if scan.provider != 'url' %}
+  <p><strong>Sender</strong><br>{{ scan.sender }}</p>
+  {% endif %}
+  <p><strong>Classification</strong><br>
+    <span class="badge {{ scan.classification }}">{{ scan.classification.replace('_', ' ') }}</span>
+  </p>
+  <p><strong>Risk score</strong><br>{{ scan.risk_score }}%</p>
+  <p><strong>Model</strong><br>Logistic Regression{% if scan.model_version %} {{ scan.model_version }}{% endif %}</p>
+  <p><strong>Source</strong><br>
+    {% if scan.provider == 'url' %}URL scanner
+    {% elif scan.provider == 'extension' %}Browser extension
+    {% else %}Email scanner{% endif %}
+  </p>
+  <p><strong>Generated</strong><br>{{ generated.strftime('%d %B %Y %H:%M UTC') if generated else '' }}</p>
+</section>
+
+<section class="panel" style="margin-top:1rem;">
+  <h2>Explanation</h2>
+  <p>{{ scan.explanations.simple or 'No narrative explanation stored.' }}</p>
+  <h3>Detected indicators</h3>
+  <ol>
+    {% for f in scan.findings %}
+    <li>{{ f.text }}</li>
+    {% else %}
+    <li class="muted">None recorded.</li>
+    {% endfor %}
+  </ol>
+  {% if scan.advice %}
+  <h3>Advice</h3>
+  <p><strong>Do not</strong></p>
+  <ul>
+    {% for item in scan.advice.get('do_not', []) %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+  <p><strong>Do</strong></p>
+  <ul>
+    {% for item in scan.advice.get('do', []) %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<div class="cta-row no-print" style="margin-top:1.25rem;">
+  <button class="btn btn-primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+  <a class="btn btn-ghost" href="{{ url_for('main.scan_result', scan_id=scan.id) }}">Back to analysis</a>
+</div>
+{% endblock %}

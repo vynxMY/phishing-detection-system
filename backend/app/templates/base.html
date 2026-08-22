@@ -6,54 +6,74 @@
   <title>{% block title %}PhishGuard{% endblock %} · Explainable Phishing Detection</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
-<body>
+<body class="{% if current_user %}app-body{% else %}public-body{% endif %}">
+{% if current_user %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('main.dashboard') }}">
+      <span class="brand-mark" aria-hidden="true"></span>
+      PhishGuard
+    </a>
+    <a class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a class="nav-item {% if request.endpoint == 'main.scan_url' %}active{% endif %}" href="{{ url_for('main.scan_url') }}">URL scanner</a>
+    <a class="nav-item {% if request.endpoint == 'main.scan' %}active{% endif %}" href="{{ url_for('main.scan') }}">Email scanner</a>
+    <div class="nav-section">Analysis</div>
+    <a class="nav-item {% if request.endpoint == 'main.history' or request.endpoint == 'main.scan_result' %}active{% endif %}" href="{{ url_for('main.history') }}">History</a>
+    <a class="nav-item {% if request.endpoint in ('main.reports', 'main.scan_report') %}active{% endif %}" href="{{ url_for('main.reports') }}">Reports</a>
+    <a class="nav-item {% if request.endpoint == 'main.learn' %}active{% endif %}" href="{{ url_for('main.learn') }}">Explainability</a>
+    <div class="nav-section">Account</div>
+    <a class="nav-item {% if request.endpoint == 'gmail.integrations' %}active{% endif %}" href="{{ url_for('gmail.integrations') }}">Extension</a>
+    <a class="nav-item {% if request.endpoint == 'main.profile' %}active{% endif %}" href="{{ url_for('main.profile') }}">Settings</a>
+    {% if current_user.is_admin %}
+    <a class="nav-item {% if request.endpoint == 'main.admin' %}active{% endif %}" href="{{ url_for('main.admin') }}">Admin</a>
+    <a class="nav-item {% if request.endpoint == 'feedback.admin_feedback' %}active{% endif %}" href="{{ url_for('feedback.admin_feedback') }}">Feedback</a>
+    {% endif %}
+    <div class="spacer"></div>
+    <a class="nav-item" href="{{ url_for('auth.logout') }}">Log out</a>
+  </aside>
+  <div class="app-content">
+{% else %}
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="{{ url_for('main.landing') if not current_user else url_for('main.dashboard') }}">
+      <a class="brand" href="{{ url_for('main.landing') }}">
         <span class="brand-mark" aria-hidden="true"></span>
         PhishGuard
       </a>
       <nav class="nav-links">
-        {% if current_user %}
-          <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-          <a href="{{ url_for('main.scan') }}">Scan</a>
-          <a href="{{ url_for('main.history') }}">History</a>
-          <a href="{{ url_for('main.learn') }}">Learn</a>
-          <a href="{{ url_for('gmail.integrations') }}">Integrations</a>
-          <a href="{{ url_for('main.profile') }}">Profile</a>
-          {% if current_user.is_admin %}
-            <a href="{{ url_for('main.admin') }}">Admin</a>
-            <a href="{{ url_for('feedback.admin_feedback') }}">Feedback</a>
-          {% endif %}
-          <a href="{{ url_for('auth.logout') }}">Logout</a>
-        {% else %}
-          <a href="{{ url_for('auth.login') }}">Login</a>
-          <a class="btn btn-primary" href="{{ url_for('auth.register') }}" style="padding:0.45rem 0.9rem;font-size:0.9rem;">Register</a>
-        {% endif %}
+        <a href="{{ url_for('main.landing') }}#features">Features</a>
+        <a href="{{ url_for('main.landing') }}#how">How it works</a>
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a class="btn btn-primary" href="{{ url_for('auth.register') }}" style="padding:0.45rem 0.9rem;font-size:0.9rem;">Get started</a>
       </nav>
     </div>
   </header>
-
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-stack">
-          {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </main>
-
+  <div class="container">
+{% endif %}
+    <main class="{% if not current_user %}public-main{% endif %}">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+{% if current_user %}
+  </div>
+</div>
+{% else %}
+  </div>
   <footer class="site-footer">
     <div class="container">
-      Explainable Web-Based Phishing Email Detection · PSM prototype
+      Explainable phishing detection with Logistic Regression · Academic prototype
     </div>
   </footer>
+{% endif %}
 </body>
 </html>
