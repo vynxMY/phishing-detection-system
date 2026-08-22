@@ -17,7 +17,8 @@
   <p>Get your API token from the web app → Integrations page after logging in.</p>
 
   <label>API base URL</label>
-  <input id="apiBase" type="url" placeholder="http://127.0.0.1:5000">
+  <input id="apiBase" type="url" placeholder="http://127.0.0.1:5000 or https://your-app.onrender.com">
+  <p style="color:#8fa3ad;font-size:0.9rem;margin:0.4rem 0 0;">Use the same origin as the web app. For a hosted demo, paste the https:// URL (no trailing slash).</p>
 
   <label>API token</label>
   <input id="apiToken" type="text" placeholder="Paste token">
@@ -26,6 +27,7 @@
   <div class="row"><input id="showWarnings" type="checkbox"><label for="showWarnings" style="margin:0;color:#e8eef1;">Show warnings</label></div>
 
   <button id="save">Save</button>
+  <button id="test" type="button" style="background:#1b3a42;color:#e8eef1;margin-left:0.5rem;">Test connection</button>
   <div id="msg"></div>
   <script src="settings.js"></script>
 </body>

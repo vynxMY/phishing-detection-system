@@ -6,6 +6,9 @@
 <section class="panel" style="margin-bottom:1.25rem;">
   <h2>Browser extension API token</h2>
   <p class="muted">Paste this token into the Chrome/Edge extension settings. It authenticates scans without storing your password in the extension.</p>
+  <p class="muted" style="margin-bottom:0.35rem;">API base URL</p>
+  <p><code style="font-family:var(--mono);word-break:break-all;">{{ request.url_root.rstrip('/') }}</code></p>
+  <p class="muted" style="margin-bottom:0.35rem;">API token</p>
   <p><code style="font-family:var(--mono);word-break:break-all;">{{ settings.api_token }}</code></p>
   <form method="post" action="{{ url_for('gmail.rotate_token') }}">
     {% include "_csrf.html" %}

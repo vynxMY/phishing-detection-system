@@ -8,6 +8,26 @@
     return `${data.subject}|${data.sender}|${(data.body || "").slice(0, 120)}`;
   }
 
+  function sendScan(message, attempt) {
+    chrome.runtime.sendMessage(message, (response) => {
+      const portErr = chrome.runtime.lastError?.message || "";
+      if (/receiving end does not exist|message port closed|back.?page/i.test(portErr) && attempt < 3) {
+        setTimeout(() => sendScan(message, attempt + 1), 250 * (attempt + 1));
+        return;
+      }
+      if (portErr) {
+        window.PhishGuardUI?.showError(portErr);
+        return;
+      }
+      if (response?.skipped) return;
+      if (!response?.ok) {
+        window.PhishGuardUI?.showError(response?.error || "Scan failed");
+        return;
+      }
+      window.PhishGuardUI?.showResult(response.result);
+    });
+  }
+
   function maybeScan(source) {
     if (!window.PhishGuardExtract) return;
     const data = window.PhishGuardExtract.extractOpenEmail();
@@ -16,7 +36,7 @@
     if (key === lastKey && source === "auto") return;
     lastKey = key;
 
-    chrome.runtime.sendMessage(
+    sendScan(
       {
         type: "SCAN_EMAIL",
         payload: {
@@ -27,18 +47,7 @@
           source,
         },
       },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          window.PhishGuardUI?.showError(chrome.runtime.lastError.message);
-          return;
-        }
-        if (response?.skipped) return;
-        if (!response?.ok) {
-          window.PhishGuardUI?.showError(response?.error || "Scan failed");
-          return;
-        }
-        window.PhishGuardUI?.showResult(response.result);
-      }
+      0
     );
   }
 
@@ -49,6 +58,5 @@
 
   observer.observe(document.body, { childList: true, subtree: true });
 
-  // Manual rescan hook
   window.PhishGuardRescan = () => maybeScan("manual");
 })();
