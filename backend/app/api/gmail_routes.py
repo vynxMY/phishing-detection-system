@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import base64
+import io
+import json
 import secrets
+import zipfile
+from pathlib import Path
 
 from flask import (
     Blueprint,
@@ -13,9 +17,12 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
+
+from paths import EXTENSION_DIR
 
 from backend.app.api.feedback_routes import get_or_create_settings
 from backend.app.auth.helpers import login_required
@@ -31,6 +38,38 @@ from gmail.oauth import (
 
 gmail_bp = Blueprint("gmail", __name__)
 
+_ZIP_SKIP_NAMES = {".ds_store", "thumbs.db"}
+
+
+def extension_version() -> str:
+    manifest = EXTENSION_DIR / "manifest.json"
+    if not manifest.is_file():
+        return "dev"
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+        return str(data.get("version") or "dev")
+    except (OSError, json.JSONDecodeError):
+        return "dev"
+
+
+def build_extension_zip() -> bytes:
+    """Zip the MV3 package so Chrome/Edge can Load unpacked after unzip."""
+    if not (EXTENSION_DIR / "manifest.json").is_file():
+        raise FileNotFoundError("extension/manifest.json is missing from this deployment")
+    buf = io.BytesIO()
+    prefix = Path("phishguard-extension")
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for path in sorted(EXTENSION_DIR.rglob("*")):
+            if not path.is_file():
+                continue
+            if path.name.startswith(".") or path.name.lower() in _ZIP_SKIP_NAMES:
+                continue
+            if "__pycache__" in path.parts:
+                continue
+            arcname = prefix / path.relative_to(EXTENSION_DIR)
+            zf.write(path, arcname.as_posix())
+    return buf.getvalue()
+
 
 @gmail_bp.route("/settings/integrations")
 @login_required
@@ -40,6 +79,26 @@ def integrations():
         "integrations.html",
         settings=settings,
         google_configured=google_configured(),
+        extension_version=extension_version(),
+        extension_available=(EXTENSION_DIR / "manifest.json").is_file(),
+    )
+
+
+@gmail_bp.route("/settings/integrations/extension.zip")
+@login_required
+def download_extension():
+    try:
+        payload = build_extension_zip()
+    except FileNotFoundError:
+        flash("The extension package is not included in this server build.", "error")
+        return redirect(url_for("gmail.integrations"))
+    filename = f"phishguard-extension-{extension_version()}.zip"
+    return send_file(
+        io.BytesIO(payload),
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=filename,
+        max_age=0,
     )
 
 

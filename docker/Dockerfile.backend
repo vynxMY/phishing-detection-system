@@ -22,6 +22,7 @@ COPY paths.py ./paths.py
 COPY backend ./backend
 COPY gmail ./gmail
 COPY ml ./ml
+COPY extension ./extension
 COPY docker/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh \

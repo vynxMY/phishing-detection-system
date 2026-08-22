@@ -74,3 +74,19 @@ def test_landing_has_no_fake_vanity_counts():
     assert r.status_code == 200
     assert b"10,000+" not in r.data
     assert b"Detect phishing" in r.data
+
+
+def test_extension_zip_requires_login():
+    _, client = _client()
+    r = client.get("/settings/integrations/extension.zip", follow_redirects=False)
+    assert r.status_code == 302
+    assert "/login" in (r.headers.get("Location") or "")
+
+
+def test_extension_zip_download_after_login():
+    _, client = _client()
+    _register(client)
+    r = client.get("/settings/integrations/extension.zip")
+    assert r.status_code == 200
+    assert r.mimetype == "application/zip"
+    assert r.data[:2] == b"PK"

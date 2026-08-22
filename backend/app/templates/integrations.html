@@ -3,8 +3,31 @@
 {% block content %}
 <h1 class="page-title">Browser extension</h1>
 <p class="muted" style="margin-top:-0.5rem;margin-bottom:1.25rem;">
-  The extension calls the same detection API as this website. The popup shows a short risk summary; the full explanation always opens here.
+  Chrome and Edge cannot install this from the Chrome Web Store yet. Download the zip, load it unpacked, then paste the API details from this page. The popup shows a short risk summary; the full explanation always opens here.
 </p>
+
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2>Download and install</h2>
+  {% if extension_available %}
+  <p class="muted">Package version {{ extension_version }}. Unzip the file — do not load the <code>.zip</code> itself.</p>
+  <div class="cta-row" style="margin:1rem 0 1.25rem;">
+    <a class="btn btn-primary" href="{{ url_for('gmail.download_extension') }}">Download Chrome / Edge zip</a>
+  </div>
+  <ol class="install-steps">
+    <li>Download and unzip. You should see a folder named <code>phishguard-extension</code> that contains <code>manifest.json</code>.</li>
+    <li>Open <code>chrome://extensions</code> (Chrome) or <code>edge://extensions</code> (Edge).</li>
+    <li>Turn on <strong>Developer mode</strong> (top right), click <strong>Load unpacked</strong>, and select that folder.</li>
+    <li>Click the extension’s <strong>Details</strong> → <strong>Extension options</strong> (or the puzzle-piece icon → PhishGuard → Settings).</li>
+    <li>Paste the <strong>API base URL</strong> and <strong>API token</strong> from this page, click <strong>Save</strong>, allow site access if the browser asks, then <strong>Test connection</strong>.</li>
+    <li>After you update the site, download a new zip and use <strong>Remove</strong> then <strong>Load unpacked</strong> again, or click <strong>Reload</strong> on the extensions page if you replaced the same folder.</li>
+  </ol>
+  <p class="muted" style="font-size:0.88rem;margin:1rem 0 0;">
+    Browsers block websites from installing extensions automatically. The Chrome Web Store listing is a later step; unpacked install is the supported path for this academic prototype.
+  </p>
+  {% else %}
+  <p class="muted">The extension files are not on this server, so a zip cannot be generated. Use the <code>extension/</code> folder from the project repository instead.</p>
+  {% endif %}
+</section>
 
 <section class="panel" style="margin-bottom:1.25rem;">
   <h2>Browser extension API token</h2>

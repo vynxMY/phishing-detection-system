@@ -17,7 +17,6 @@ ml/training
 ml/preprocessing
 
 frontend
-extension
 docs
 *.md
 backend/instance/*.db

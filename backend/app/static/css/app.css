@@ -459,6 +459,14 @@ th {
 }
 
 .advice-list { margin: 0.4rem 0 0; padding-left: 1.1rem; }
+
+.install-steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text);
+}
+
+.install-steps li { margin: 0.45rem 0; }
 .advice-list.do-not li { color: #fecaca; }
 .advice-list.do li { color: #86efac; }
 
