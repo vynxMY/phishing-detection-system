@@ -1,40 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Explainability{% endblock %}
+{% block title %}Learn to spot phishing{% endblock %}
 {% block content %}
-<h1 class="page-title">Explainability</h1>
-<p class="muted" style="margin-top:-0.5rem;margin-bottom:1.25rem;">
-  PhishGuard does not stop at a score. After Logistic Regression predicts phishing vs legitimate, the interface shows the signals that influenced that decision.
+<h1 class="page-title">Learn to spot phishing</h1>
+<p class="muted" style="margin-top:0;margin-bottom:1.25rem;">
+  Short lessons you can use even when PhishGuard is not open.
 </p>
 
-<section class="panel" style="margin-bottom:1.25rem;">
-  <h2>How a decision is explained</h2>
-  <div class="how-grid" style="margin-top:0.75rem;">
-    <div class="how-step"><span class="n">1</span><div>You submit a URL or email. The engine extracts TF-IDF text features, URL features, and metadata.</div></div>
-    <div class="how-step"><span class="n">2</span><div>Logistic Regression outputs a phishing probability and a risk classification.</div></div>
-    <div class="how-step"><span class="n">3</span><div>Analysis signals (URL structure, sender mismatch, urgent language, and related scores) are shown as contribution bars.</div></div>
-    <div class="how-step"><span class="n">4</span><div>A short narrative and security advice translate those signals into something a non-expert can act on.</div></div>
-  </div>
-  <p class="muted" style="margin:1rem 0 0;font-size:0.9rem;">
-    Contribution bars use the analyser signal scores stored with each scan. They are not claimed as SHAP values.
-  </p>
-</section>
-
-<div class="grid-2">
-  <article class="panel">
-    <h2>Suspicious URLs</h2>
-    <p>Hover before you click. Displayed text may not match the real destination. Watch extra subdomains, misspellings, IP addresses, and unusual endings such as <code>.xyz</code> or <code>.top</code>.</p>
+<div class="learn-grid">
+  <article>
+    <h3>What is phishing?</h3>
+    <p>Someone pretends to be a trusted person or company so you will click, log in, or send money.</p>
   </article>
-  <article class="panel">
-    <h2>Sender mismatch</h2>
-    <p>Attackers often show a trusted name while routing replies elsewhere. Compare the From domain with Reply-To and Return-Path when headers are available.</p>
+  <article>
+    <h3>Fake websites</h3>
+    <p>A page can look identical to a bank or email login. The address bar is the part that matters.</p>
   </article>
-  <article class="panel">
-    <h2>Urgent / threat language</h2>
-    <p>Messages that demand immediate action — “account suspended”, “final notice”, “within 24 hours” — are designed to skip your normal caution.</p>
+  <article>
+    <h3>Suspicious links</h3>
+    <p>Hover before you click. Extra subdomains, misspellings, and IP addresses are common tricks.</p>
   </article>
-  <article class="panel">
-    <h2>What to do next</h2>
-    <p>Each result includes do / do-not advice. Use it with the findings list, then open a printable report if you need a record of the analysis.</p>
+  <article>
+    <h3>Urgency &amp; threats</h3>
+    <p>“Account suspended”, “final notice”, “within 24 hours” are designed to skip your caution.</p>
+  </article>
+  <article>
+    <h3>Fake login pages</h3>
+    <p>Never enter a password from an unexpected email. Open the official site yourself.</p>
+  </article>
+  <article>
+    <h3>Impersonation</h3>
+    <p>Display names can be faked. Compare the From domain with Reply-To when you can see headers.</p>
+  </article>
+  <article>
+    <h3>Suspicious attachments</h3>
+    <p>Unexpected invoices, “resume” files, and double extensions such as <code>.pdf.exe</code> are high risk.</p>
   </article>
 </div>
+
+<section class="panel" style="margin-top:1.5rem;">
+  <h2>Which part looks suspicious?</h2>
+  <p class="example-url">https://<mark>paypal.account-security.example.com</mark>/login</p>
+  <p>The highlighted host is not PayPal. Attackers often put a trusted brand in a subdomain while the real domain is theirs.</p>
+  <p class="muted">PhishGuard’s explanations look for this kind of URL structure, plus urgent language and sender mismatch.</p>
+</section>
 {% endblock %}

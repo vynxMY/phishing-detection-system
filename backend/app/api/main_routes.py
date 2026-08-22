@@ -41,6 +41,42 @@ SIGNAL_LABELS = {
 }
 
 
+def verdict_for(classification: str) -> dict:
+    """Human-first copy. Probability stays secondary."""
+    c = (classification or "").lower()
+    if c in ("phishing", "high_risk"):
+        return {
+            "tone": "phishing",
+            "headline": "This looks like phishing",
+            "verdict": "Likely phishing",
+            "risk_label": "High risk",
+            "lead": "We found several characteristics that are commonly associated with phishing.",
+            "recommendation": "Don't enter personal information, and verify the sender through another channel.",
+        }
+    if c == "suspicious":
+        return {
+            "tone": "suspicious",
+            "headline": "This deserves a closer look",
+            "verdict": "Suspicious",
+            "risk_label": "Medium risk",
+            "lead": "We found some unusual characteristics, but there isn't enough evidence to confidently call it phishing.",
+            "recommendation": "Avoid entering sensitive information until you verify the link or sender.",
+        }
+    return {
+        "tone": "safe",
+        "headline": "This looks safe",
+        "verdict": "Looks safe",
+        "risk_label": "Low risk",
+        "lead": "We didn't find strong indicators associated with phishing.",
+        "recommendation": "Still be careful: no automated detector can guarantee that a website or message is completely safe.",
+    }
+
+
+def with_verdict(view: dict) -> dict:
+    view["verdict"] = verdict_for(view.get("classification") or "")
+    return view
+
+
 def get_pipeline() -> DetectionPipeline:
     global _pipeline
     if _pipeline is None:
@@ -111,7 +147,7 @@ def _user_scans():
 @main_bp.route("/")
 def landing():
     if g.user:
-        return redirect(url_for("main.dashboard"))
+        return redirect(url_for("main.scan_url"))
     return render_template("landing.html", lab=load_lab_metrics())
 
 
@@ -169,9 +205,20 @@ def dashboard():
             indicator_counts[cat] += 1
     top_indicators = indicator_counts.most_common(6)
 
+    hour = datetime.now().hour
+    if hour < 12:
+        greeting = "Good morning"
+    elif hour < 18:
+        greeting = "Good afternoon"
+    else:
+        greeting = "Good evening"
+    name = (g.user.email or "there").split("@")[0]
+
     return render_template(
         "dashboard.html",
-        recent_scans=[scan_to_view(s) for s in scans],
+        greeting=greeting,
+        display_name=name,
+        recent_scans=[with_verdict(scan_to_view(s)) for s in scans],
         stats=stats,
         trend=days,
         top_indicators=top_indicators,
@@ -185,14 +232,34 @@ def dashboard():
 @rate_limit(30, 60, key_fn=lambda: f"scan:{getattr(g.user, 'id', request.remote_addr)}")
 def scan():
     if request.method == "GET":
-        return render_template("scan.html")
+        return render_template("check.html", mode="email", email_text="", sender="", subject="", body="")
 
+    sender = (request.form.get("sender") or "").strip()
+    subject = (request.form.get("subject") or "").strip()
+    body = (request.form.get("body") or "").strip()
     text = (request.form.get("email_text") or "").strip()
     eml_file = request.files.get("eml_file")
 
+    if sender or subject or body:
+        lines = []
+        if sender:
+            lines.append(f"From: {sender}")
+        if subject:
+            lines.append(f"Subject: {subject}")
+        lines.append("")
+        lines.append(body or text)
+        text = "\n".join(lines)
+
     if not text and (not eml_file or not eml_file.filename):
-        flash("Paste email content or upload a .eml file.", "error")
-        return render_template("scan.html")
+        flash("Paste the message, fill in the fields, or upload a .eml file.", "error")
+        return render_template(
+            "check.html",
+            mode="email",
+            sender=sender,
+            subject=subject,
+            body=body,
+            email_text=text,
+        )
 
     try:
         pipeline = get_pipeline()
@@ -204,12 +271,18 @@ def scan():
         else:
             result = pipeline.scan(text=text, explanation_level="all")
         scan_row = save_scan_result(g.user, result, provider="web")
-        flash("Scan complete.", "success")
         return redirect(url_for("main.scan_result", scan_id=scan_row.id))
     except Exception as exc:
         current_app.logger.exception("Scan failed")
         flash(f"Scan failed: {exc}", "error")
-        return render_template("scan.html", email_text=text)
+        return render_template(
+            "check.html",
+            mode="email",
+            sender=sender,
+            subject=subject,
+            body=body,
+            email_text=text,
+        )
 
 
 @main_bp.route("/scan/url", methods=["GET", "POST"])
@@ -218,22 +291,21 @@ def scan():
 def scan_url():
     preset = (request.args.get("url") or "").strip()
     if request.method == "GET":
-        return render_template("scan_url.html", url_value=preset)
+        return render_template("check.html", mode="url", url_value=preset)
 
     raw = (request.form.get("url") or "").strip()
     target = _normalize_url(raw)
     if target is None:
         flash("Enter a valid http(s) URL.", "error")
-        return render_template("scan_url.html", url_value=raw)
+        return render_template("check.html", mode="url", url_value=raw)
 
     try:
         scan_row, _result = run_url_scan(g.user, target)
-        flash("URL analysis complete.", "success")
         return redirect(url_for("main.scan_result", scan_id=scan_row.id))
     except Exception as exc:
         current_app.logger.exception("URL scan failed")
         flash(f"Scan failed: {exc}", "error")
-        return render_template("scan_url.html", url_value=raw)
+        return render_template("check.html", mode="url", url_value=raw)
 
 
 @main_bp.route("/scan/<int:scan_id>")
@@ -259,7 +331,7 @@ def scan_result(scan_id: int):
     contrib.sort(key=lambda row: row["points"], reverse=True)
     return render_template(
         "result.html",
-        scan=view,
+        scan=with_verdict(view),
         contributions=contrib,
         signal_labels=SIGNAL_LABELS,
     )
@@ -272,7 +344,7 @@ def scan_report(scan_id: int):
     if scan is None or (scan.user_id != g.user.id and not g.user.is_admin):
         flash("Scan not found.", "error")
         return redirect(url_for("main.history"))
-    return render_template("report.html", scan=scan_to_view(scan), generated=datetime.now(timezone.utc))
+    return render_template("report.html", scan=with_verdict(scan_to_view(scan)), generated=datetime.now(timezone.utc))
 
 
 @main_bp.route("/history")
@@ -294,9 +366,36 @@ def history():
             db.or_(EmailScan.subject.ilike(like), EmailScan.sender.ilike(like))
         )
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    views = [with_verdict(scan_to_view(s)) for s in pagination.items]
+    groups = []
+    today = datetime.now(timezone.utc).date()
+    current_label = None
+    bucket = []
+    for view in views:
+        created = view.get("created_at")
+        if created is None:
+            label = "Earlier"
+        else:
+            day = created.date() if hasattr(created, "date") else created
+            if day == today:
+                label = "Today"
+            elif day == today - timedelta(days=1):
+                label = "Yesterday"
+            else:
+                label = created.strftime("%d %b %Y")
+        if label != current_label:
+            if bucket:
+                groups.append({"label": current_label, "scans": bucket})
+            current_label = label
+            bucket = [view]
+        else:
+            bucket.append(view)
+    if bucket:
+        groups.append({"label": current_label, "scans": bucket})
     return render_template(
         "history.html",
-        scans=[scan_to_view(s) for s in pagination.items],
+        scans=views,
+        groups=groups,
         pagination=pagination,
         q=q,
         classification=classification,
@@ -313,7 +412,7 @@ def reports():
         .limit(40)
         .all()
     )
-    return render_template("reports.html", scans=[scan_to_view(s) for s in scans])
+    return render_template("reports.html", scans=[with_verdict(scan_to_view(s)) for s in scans])
 
 
 @main_bp.route("/profile")
@@ -324,9 +423,13 @@ def profile():
 
 
 @main_bp.route("/learn")
-@login_required
 def learn():
     return render_template("learn.html")
+
+
+@main_bp.route("/about")
+def about():
+    return render_template("about.html", lab=load_lab_metrics())
 
 
 @main_bp.route("/admin")

@@ -2,30 +2,24 @@
 {% block title %}Reports{% endblock %}
 {% block content %}
 <h1 class="page-title">Reports</h1>
-<p class="muted" style="margin-top:-0.5rem;margin-bottom:1.25rem;">
-  Open a print-ready analysis for any scan. Use your browser’s Print → Save as PDF.
+<p class="muted" style="margin-top:0;margin-bottom:1.25rem;">
+  Open a scan report, then use Print → Save as PDF.
 </p>
+{% if scans %}
+  {% for s in scans %}
+  <section class="panel report-card">
+    <div class="muted">Scan #{{ s.id }}</div>
+    <strong>{{ s.subject }}</strong>
+    <div><span class="badge {{ s.classification }}">{{ s.verdict.verdict }}</span> <span class="muted">{{ s.risk_score }}% model probability</span></div>
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="{{ url_for('main.scan_result', scan_id=s.id) }}">View</a>
+      <a class="btn btn-primary" href="{{ url_for('main.scan_report', scan_id=s.id) }}">Print</a>
+    </div>
+  </section>
+  {% endfor %}
+{% else %}
 <section class="panel">
-  {% if scans %}
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Target</th><th>Result</th><th>Risk</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for s in scans %}
-        <tr>
-          <td>{{ s.subject }}</td>
-          <td><span class="badge {{ s.classification }}">{{ s.classification.replace('_', ' ') }}</span></td>
-          <td>{{ s.risk_score }}%</td>
-          <td><a href="{{ url_for('main.scan_report', scan_id=s.id) }}">Open report</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  <p class="muted">Run a scan first, then generate a report from here.</p>
-  {% endif %}
+  <p class="muted">Run a check first, then generate a report from here.</p>
 </section>
+{% endif %}
 {% endblock %}

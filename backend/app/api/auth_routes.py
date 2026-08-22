@@ -19,7 +19,7 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 @rate_limit(5, 60, key_fn=lambda: f"register:{request.remote_addr}")
 def register():
     if g.user:
-        return redirect(url_for("main.dashboard"))
+        return redirect(url_for("main.scan_url"))
 
     if request.method == "POST":
         email = (request.form.get("email") or "").strip().lower()
@@ -41,7 +41,7 @@ def register():
             db.session.commit()
             login_user(user)
             flash("Account created. Welcome.", "success")
-            return redirect(url_for("main.dashboard"))
+            return redirect(url_for("main.scan_url"))
 
     return render_template("auth/register.html")
 

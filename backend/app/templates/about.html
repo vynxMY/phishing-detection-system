@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<h1 class="page-title">About PhishGuard</h1>
+<p class="lede muted">
+  PhishGuard is an explainable phishing detection system designed to help users identify suspicious URLs and emails.
+</p>
+
+<section class="panel" style="margin:1.25rem 0;">
+  <h2>How detection works</h2>
+  <div class="how-grid">
+    <div class="how-step"><span class="n">1</span><div>Input — you paste a URL or email.</div></div>
+    <div class="how-step"><span class="n">2</span><div>Feature extraction — TF-IDF, URL characteristics, and metadata.</div></div>
+    <div class="how-step"><span class="n">3</span><div>Machine learning prediction — Logistic Regression.</div></div>
+    <div class="how-step"><span class="n">4</span><div>Explainability — the signals that influenced the decision.</div></div>
+    <div class="how-step"><span class="n">5</span><div>User recommendation — what you should do next.</div></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Model</h2>
+  <p>Logistic Regression is the single main model.</p>
+  <p><strong>Features</strong><br>TF-IDF, URL characteristics, and metadata.</p>
+  {% if lab %}
+  <p><strong>Held-out test-set metrics ({{ lab.version }})</strong><br>
+    Accuracy {{ lab.accuracy }}% · F1 {{ lab.f1 }}% · Precision {{ lab.precision }}% · Recall {{ lab.recall }}%
+  </p>
+  <p class="muted">These numbers come from the trained model’s experimental test set. They are not live traffic performance.</p>
+  {% endif %}
+  <p class="muted" style="margin-bottom:0;">
+    PhishGuard is an academic prototype. Detection results should not be treated as a guarantee that a website is safe.
+  </p>
+</section>
+{% endblock %}

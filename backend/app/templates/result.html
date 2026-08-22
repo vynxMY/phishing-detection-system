@@ -1,113 +1,99 @@
 {% extends "base.html" %}
-{% block title %}Analysis Result{% endblock %}
+{% block title %}{{ scan.verdict.verdict }}{% endblock %}
 {% block content %}
-<section class="panel risk-hero">
-  <div class="muted">
-    Analysis #{{ scan.id }}
-    · {{ scan.created_at.strftime('%d %b %Y %H:%M') if scan.created_at else '' }}
-    {% if scan.provider == 'url' %}· URL scan{% else %}· Email scan{% endif %}
-  </div>
-  <div>
-    <span class="badge {{ scan.classification }}">{{ scan.classification.replace('_', ' ') }}</span>
-    {% if scan.confidence %}
-      <span class="muted" style="margin-left:0.6rem;">Confidence {{ '%.0f'|format(scan.confidence * 100) }}%</span>
-    {% endif %}
-  </div>
-  <div class="risk-score">{{ scan.risk_score }}<span style="font-size:1.15rem;color:var(--muted);">% risk</span></div>
+{% set v = scan.verdict %}
+<section class="panel verdict-card {{ v.tone }}">
+  <div class="verdict-kicker">{{ v.verdict }}</div>
+  <h1>{{ v.headline }}</h1>
+  <p>{{ v.lead }}</p>
+  <p><strong>Risk level</strong> · {{ v.risk_label }}</p>
   <div class="score-track" aria-hidden="true"><span style="width: {{ scan.risk_score }}%;"></span></div>
-  <p style="margin:0.5rem 0 0;max-width:40rem;">{{ scan.explanations.simple or 'No summary available.' }}</p>
-  <p class="muted" style="margin:0.35rem 0 0;font-size:0.9rem;">
-    {{ scan.subject }}
-    {% if scan.provider != 'url' %} · From {{ scan.sender }}{% endif %}
-    {% if scan.model_version %} · Logistic Regression {{ scan.model_version }}{% endif %}
+  <p class="muted" style="margin:0.4rem 0 0;">{{ scan.risk_score }}% model probability
+    {% if scan.subject %} · {{ scan.subject }}{% endif %}
   </p>
-  {% if scan.provider == 'url' %}
-  <p class="muted" style="margin:0.35rem 0 0;font-size:0.85rem;">
-    This URL was analysed through the email detection pipeline (the link was wrapped as a message so URL and text features could be extracted).
-  </p>
-  {% endif %}
 </section>
 
 <div class="grid-2" style="margin-top:1rem;">
   <section class="panel">
-    <h2>Why was this detected?</h2>
-    <p class="muted" style="margin-top:-0.5rem;">These are the analysis signals that influenced this result — not a black-box “AI says phishing.”</p>
+    <h2>Why did we flag this?</h2>
+    {% if scan.findings %}
+    <p class="muted">We found {{ scan.findings|length }} thing{{ 's' if scan.findings|length != 1 }} worth paying attention to.</p>
+    <ul class="findings">
+      {% for f in scan.findings[:8] %}
+      <li class="finding {{ f.severity }}">
+        <strong>{{ (f.category or 'signal')|replace('_',' ')|capitalize }}</strong>
+        <div>{{ f.text }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No strong warning signals were recorded. Read the recommendation anyway — absence of flags is not a guarantee of safety.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>What should you do?</h2>
+    <p>{{ v.recommendation }}</p>
+    <ol class="numbered-advice">
+      {% if scan.advice.get('do_not') %}
+        {% for item in scan.advice.get('do_not', [])[:4] %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      {% else %}
+        <li>Don't enter your password or payment details if you are unsure.</li>
+        <li>Don't download anything from an unexpected link.</li>
+        <li>If the message claims to be from a company, visit the company's official website directly.</li>
+        <li>If you're still unsure, contact the sender through a trusted channel.</li>
+      {% endif %}
+    </ol>
+    <div class="cta-row" style="margin-top:1rem;">
+      <a class="btn btn-primary" href="{{ url_for('main.scan_url') }}">Check another link</a>
+      <a class="btn btn-ghost" href="{{ url_for('main.scan_report', scan_id=scan.id) }}">Save / print report</a>
+    </div>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:1rem;">
+  <details class="tech-details">
+    <summary>Show technical details</summary>
+    <p><strong>Model</strong><br>Logistic Regression{% if scan.model_version %} {{ scan.model_version }}{% endif %}</p>
+    <p><strong>Feature extraction</strong><br>TF-IDF + URL features + metadata</p>
+    <p><strong>Prediction</strong><br>{{ scan.classification.replace('_', ' ') }}</p>
+    <p><strong>Model probability</strong><br>{{ scan.risk_score }}%</p>
+    {% if scan.provider == 'url' %}
+    <p class="muted">This URL was wrapped as a short message so the email detection engine could extract URL and text features.</p>
+    {% endif %}
+    <h3>Feature contributions</h3>
+    <p class="muted">These are analyser signal scores stored with the scan — not SHAP values.</p>
     {% if contributions %}
     <div class="breakdown">
       {% for c in contributions %}
       <div class="breakdown-row">
         <span>{{ c.label }}</span>
         <div class="bar {% if c.points >= 20 %}danger{% elif c.points >= 10 %}warn{% endif %}"><span style="width: {{ c.pct }}%;"></span></div>
-        <span>+{{ c.points }}</span>
+        <span>{{ c.points }}</span>
       </div>
       {% endfor %}
     </div>
     {% else %}
-    <p class="muted">No elevated analysis signals were recorded for this scan.</p>
+    <p class="muted">No elevated analysis signals were stored for this scan.</p>
     {% endif %}
-  </section>
-
-  <section class="panel">
-    <h2>Model explanation</h2>
-    <p>{{ scan.explanations.simple or 'The classifier did not return a narrative explanation for this scan.' }}</p>
-    <ul class="findings">
-      {% for f in scan.findings[:8] %}
-      <li class="finding {{ f.severity }}">
-        <strong>{{ (f.category or 'signal')|replace('_',' ')|upper }}</strong>
-        <div>{{ f.text }}</div>
-      </li>
-      {% else %}
-      <li class="muted">No detailed findings recorded.</li>
-      {% endfor %}
-    </ul>
-  </section>
-</div>
-
-<section class="panel" style="margin-top:1rem;">
-  <h2>What should I do?</h2>
-  <div class="advice-grid">
-    <div>
-      <strong>Do not</strong>
-      <ul class="advice-list do-not">
-        {% for item in scan.advice.get('do_not', []) %}
-        <li>{{ item }}</li>
-        {% else %}
-        <li class="muted">No restrictions listed.</li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div>
-      <strong>Do</strong>
-      <ul class="advice-list do">
-        {% for item in scan.advice.get('do', []) %}
-        <li>{{ item }}</li>
-        {% else %}
-        <li class="muted">No actions listed.</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
+  </details>
 </section>
 
-<div class="cta-row" style="margin-top:1.25rem;">
-  <a class="btn btn-primary" href="{{ url_for('main.scan_report', scan_id=scan.id) }}">Open report</a>
-  <a class="btn btn-ghost" href="{{ url_for('main.scan') }}">Analyze another email</a>
-  <a class="btn btn-ghost" href="{{ url_for('main.scan_url') }}">Scan another URL</a>
-</div>
-
-<section class="panel" style="margin-top:1.25rem;">
-  <h2>Was this result correct?</h2>
+<section class="panel" style="margin-top:1rem;">
+  <h2>Was this result helpful?</h2>
   <form class="form wide" method="post" action="{{ url_for('feedback.submit_feedback') }}">
     {% include "_csrf.html" %}
     <input type="hidden" name="scan_id" value="{{ scan.id }}">
     <label>Feedback
       <select name="is_correct" id="is_correct" required>
         <option value="">Select…</option>
-        <option value="yes">Yes — correct</option>
-        <option value="no">No — incorrect</option>
+        <option value="yes">Yes — this matches what I expected</option>
+        <option value="no">No — this looks wrong</option>
       </select>
     </label>
-    <label>If incorrect, what was the correct classification?
+    <label>If it was wrong, what should it have been?
       <select name="actual_label">
         <option value="">—</option>
         <option value="legitimate">Legitimate</option>
@@ -125,7 +111,7 @@
     <button class="btn btn-primary" type="submit">Submit feedback</button>
   </form>
   <p class="muted" style="font-size:0.88rem;margin-top:0.75rem;">
-    Feedback is reviewed by an administrator before it can enter any training dataset. Production models are never retrained instantly.
+    Feedback is reviewed before it can enter any training dataset. The live model is never retrained instantly.
   </p>
 </section>
 {% endblock %}

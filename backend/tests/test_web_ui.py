@@ -47,7 +47,7 @@ def test_url_scanner_page_after_login():
     _register(client)
     r = client.get("/scan/url?url=https://example.com")
     assert r.status_code == 200
-    assert b"URL phishing scanner" in r.data
+    assert b"Check a website" in r.data
     assert b"https://example.com" in r.data
 
 
@@ -57,7 +57,8 @@ def test_reports_and_history_pages():
     assert client.get("/history").status_code == 200
     assert client.get("/reports").status_code == 200
     assert client.get("/learn").status_code == 200
-    assert b"Explainability" in client.get("/learn").data
+    assert b"Learn to spot phishing" in client.get("/learn").data
+    assert client.get("/about").status_code == 200
 
 
 def test_login_hidden_next_field():
@@ -73,7 +74,7 @@ def test_landing_has_no_fake_vanity_counts():
     r = client.get("/")
     assert r.status_code == 200
     assert b"10,000+" not in r.data
-    assert b"Detect phishing" in r.data
+    assert b"Check before you click" in r.data
 
 
 def test_extension_zip_requires_login():

@@ -1,15 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Analysis History{% endblock %}
+{% block title %}My scans{% endblock %}
 {% block content %}
-<h1 class="page-title">Analysis history</h1>
+<h1 class="page-title">My scans</h1>
+<p class="muted" style="margin-top:0;margin-bottom:1.25rem;">Your personal log of URL and email checks.</p>
 
 <form class="filters" method="get">
-  <label>Search
+  <label>Search scans
     <input type="search" name="q" value="{{ q or '' }}" placeholder="URL, subject, or sender">
   </label>
-  <label>Result
+  <label>Filter
     <select name="classification">
-      <option value="">All</option>
+      <option value="">All results</option>
       {% for opt in ['safe','low_risk','suspicious','high_risk','phishing'] %}
       <option value="{{ opt }}" {% if classification == opt %}selected{% endif %}>{{ opt.replace('_',' ') }}</option>
       {% endfor %}
@@ -27,38 +28,32 @@
 </form>
 
 <section class="panel">
-  {% if scans %}
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Target</th><th>Result</th><th>Risk</th><th>Date</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for s in scans %}
-        <tr>
-          <td>{{ s.subject }}</td>
-          <td><span class="badge {{ s.classification }}">{{ s.classification.replace('_', ' ') }}</span></td>
-          <td>{{ s.risk_score }}%</td>
-          <td class="muted">{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
-          <td><a href="{{ url_for('main.scan_result', scan_id=s.id) }}">Full explanation</a></td>
-        </tr>
+  {% if groups %}
+    {% for group in groups %}
+      <div class="day-label">{{ group.label }}</div>
+      <div class="scan-list">
+        {% for s in group.scans %}
+        <a class="scan-row" href="{{ url_for('main.scan_result', scan_id=s.id) }}">
+          <span>{{ s.subject }}</span>
+          <span class="badge {{ s.classification }}">{{ s.verdict.verdict }}</span>
+          <span class="muted">{{ s.created_at.strftime('%H:%M') if s.created_at else '' }}</span>
+        </a>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% if pagination and pagination.pages > 1 %}
-  <div class="pagination">
-    {% if pagination.has_prev %}
-      <a href="{{ url_for('main.history', page=pagination.prev_num, q=q, classification=classification, provider=provider) }}">← Previous</a>
+      </div>
+    {% endfor %}
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+      {% if pagination.has_prev %}
+        <a href="{{ url_for('main.history', page=pagination.prev_num, q=q, classification=classification, provider=provider) }}">← Previous</a>
+      {% endif %}
+      <span class="muted">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+      {% if pagination.has_next %}
+        <a href="{{ url_for('main.history', page=pagination.next_num, q=q, classification=classification, provider=provider) }}">Next →</a>
+      {% endif %}
+    </div>
     {% endif %}
-    <span class="muted">Page {{ pagination.page }} of {{ pagination.pages }}</span>
-    {% if pagination.has_next %}
-      <a href="{{ url_for('main.history', page=pagination.next_num, q=q, classification=classification, provider=provider) }}">Next →</a>
-    {% endif %}
-  </div>
-  {% endif %}
   {% else %}
-  <p class="muted">No matching analyses.</p>
+  <p class="muted">No matching scans. Check a link to start your history.</p>
   {% endif %}
 </section>
 {% endblock %}

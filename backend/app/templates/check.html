@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Check{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Check before you click.</h1>
+  <p class="lede">Got a suspicious link or email? PhishGuard checks it for common signs of phishing and explains what it finds.</p>
+</section>
+
+<div class="mode-tabs">
+  <a class="{% if mode == 'url' %}active{% endif %}" href="{{ url_for('main.scan_url') }}">URL</a>
+  <a class="{% if mode == 'email' %}active{% endif %}" href="{{ url_for('main.scan') }}">Email</a>
+</div>
+
+{% if mode == 'url' %}
+<section class="panel">
+  <h2>Check a website</h2>
+  <p class="muted">Paste the link you're unsure about.</p>
+  <form class="form wide js-scan-form" method="post" action="{{ url_for('main.scan_url') }}">
+    {% include "_csrf.html" %}
+    <label>Website address
+      <input type="url" name="url" placeholder="https://example.com/login" value="{{ url_value or '' }}" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Check this link</button>
+  </form>
+  <p class="privacy-note">Your scan is used to generate this analysis. Don't paste passwords, authentication codes, or other sensitive information.</p>
+</section>
+{% else %}
+<section class="panel">
+  <h2>Analyze an email</h2>
+  <p class="muted">Check a suspicious message before you reply or click.</p>
+  <form class="form wide js-scan-form" method="post" action="{{ url_for('main.scan') }}" enctype="multipart/form-data">
+    {% include "_csrf.html" %}
+    <label>Sender
+      <input type="text" name="sender" placeholder="support@example.com" value="{{ sender or '' }}">
+    </label>
+    <label>Subject
+      <input type="text" name="subject" placeholder="Your account has been suspended" value="{{ subject or '' }}">
+    </label>
+    <label>Message
+      <textarea name="body" placeholder="Dear customer, your account will be closed unless you verify…">{{ body or email_text or '' }}</textarea>
+    </label>
+    <label>Or upload a .eml file
+      <input type="file" name="eml_file" accept=".eml,message/rfc822,text/plain">
+    </label>
+    <button class="btn btn-primary" type="submit">Analyze email</button>
+  </form>
+  <p class="privacy-note">Content is analysed in memory and is not stored by default. Don't paste passwords or one-time codes.</p>
+</section>
+{% endif %}
+{% endblock %}

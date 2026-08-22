@@ -1,27 +1,26 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Activity{% endblock %}
 {% block content %}
-<h1 class="page-title">Dashboard</h1>
+<h1 class="page-title">{{ greeting }}, {{ display_name }}.</h1>
+<p class="muted" style="margin-top:-0.35rem;margin-bottom:1.25rem;">Here's your recent activity.</p>
 
-<div class="grid-4" style="margin-bottom:1.5rem;">
-  <div class="stat"><div class="label">Analyses</div><div class="value">{{ stats.total }}</div></div>
-  <div class="stat danger"><div class="label">Phishing / high risk</div><div class="value">{{ stats.phishing }}</div></div>
+<div class="grid-3" style="margin-bottom:1.5rem;">
+  <div class="stat"><div class="label">Scans</div><div class="value">{{ stats.total }}</div></div>
   <div class="stat warn"><div class="label">Suspicious</div><div class="value">{{ stats.suspicious }}</div></div>
-  <div class="stat ok"><div class="label">Safe</div><div class="value">{{ stats.safe }}</div></div>
+  <div class="stat danger"><div class="label">Phishing</div><div class="value">{{ stats.phishing }}</div></div>
 </div>
 
 <div class="cta-row" style="margin-bottom:1.5rem;">
-  <a class="btn btn-primary" href="{{ url_for('main.scan_url') }}">Scan a URL</a>
-  <a class="btn btn-ghost" href="{{ url_for('main.scan') }}">Analyze an email</a>
+  <a class="btn btn-primary" href="{{ url_for('main.scan_url') }}">Check something</a>
 </div>
 
 <div class="grid-2" style="margin-bottom:1.5rem;">
   <section class="panel">
-    <h2>Detection trend</h2>
-    <p class="muted" style="margin-top:-0.4rem;">Your scans over the last 14 days. Empty days mean no scans yet.</p>
+    <h2>Your scanning activity</h2>
+    <p class="muted" style="margin-top:-0.4rem;">Last 14 days. Empty days mean no scans yet.</p>
     <div class="trend" aria-hidden="true">
       {% for d in trend %}
-      <div class="trend-col" title="{{ d.label }}: {{ d.total }} scans, {{ d.phishing }} phishing">
+      <div class="trend-col" title="{{ d.label }}: {{ d.total }} scans">
         <div class="trend-stack">
           <div class="trend-phish" style="height: {{ d.phish_pct }}%;"></div>
           <div class="trend-rest" style="height: {{ d.rest_pct }}%;"></div>
@@ -32,47 +31,33 @@
     </div>
   </section>
   <section class="panel">
-    <h2>Common indicators</h2>
+    <h2>Most common findings</h2>
     {% if top_indicators %}
     <ul class="findings">
       {% for name, count in top_indicators %}
-      <li class="finding">{{ name }} <span class="muted">×{{ count }}</span> on recent scans</li>
+      <li class="finding">{{ name }} <span class="muted">{{ count }}</span></li>
       {% endfor %}
     </ul>
     {% else %}
-    <p class="muted">Indicators appear here after you run analyses.</p>
-    {% endif %}
-    {% if lab %}
-    <p class="muted" style="margin-top:1rem;font-size:0.85rem;">
-      Lab (held-out {{ lab.version }}): accuracy {{ lab.accuracy }}% · F1 {{ lab.f1 }}%. This is experimental test-set performance, not a live accuracy counter.
-    </p>
+    <p class="muted">Findings appear here after you run checks.</p>
     {% endif %}
   </section>
 </div>
 
 <section class="panel">
-  <h2>Recent analysis</h2>
+  <h2>Recent scans</h2>
   {% if recent_scans %}
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Target</th><th>Result</th><th>Risk</th><th>When</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for s in recent_scans %}
-        <tr>
-          <td>{{ s.subject }}</td>
-          <td><span class="badge {{ s.classification }}">{{ s.classification.replace('_', ' ') }}</span></td>
-          <td class="muted">{{ s.risk_score }}%</td>
-          <td class="muted">{{ s.created_at.strftime('%d %b %H:%M') if s.created_at else '—' }}</td>
-          <td><a href="{{ url_for('main.scan_result', scan_id=s.id) }}">Explain</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="scan-list">
+    {% for s in recent_scans %}
+    <a class="scan-row" href="{{ url_for('main.scan_result', scan_id=s.id) }}">
+      <span>{{ s.subject }}</span>
+      <span class="badge {{ s.classification }}">{{ s.verdict.verdict }}</span>
+      <span class="muted">{{ s.created_at.strftime('%d %b %H:%M') if s.created_at else '' }}</span>
+    </a>
+    {% endfor %}
   </div>
   {% else %}
-  <p class="muted">No analyses yet. Scan a URL or paste an email to see explainable results here.</p>
+  <p class="muted">No checks yet. Paste a link or email to get started.</p>
   {% endif %}
 </section>
 {% endblock %}
