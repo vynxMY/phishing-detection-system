@@ -82,4 +82,5 @@ def scan_to_view(scan: EmailScan) -> dict[str, Any]:
             "attachment": scan.features.attachment_score if scan.features else 0,
             "brand": scan.features.brand_score if scan.features else 0,
         } if scan.features else {},
+        "provider": scan.provider or "web",
     }

@@ -5,6 +5,7 @@
   <h1 class="page-title">Log in</h1>
   <form class="form" method="post">
     {% include "_csrf.html" %}
+    <input type="hidden" name="next" value="{{ next or '' }}">
     <label>Email
       <input type="email" name="email" required autocomplete="email">
     </label>

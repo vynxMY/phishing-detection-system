@@ -1,82 +1,98 @@
 {% extends "base.html" %}
-{% block title %}Scan Result{% endblock %}
+{% block title %}Analysis Result{% endblock %}
 {% block content %}
 <section class="panel risk-hero">
-  <div class="muted">Scan #{{ scan.id }} · {{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at else '' }}</div>
-  <div class="risk-score">{{ scan.risk_score }}<span style="font-size:1.2rem;color:var(--muted);">/100</span></div>
+  <div class="muted">
+    Analysis #{{ scan.id }}
+    · {{ scan.created_at.strftime('%d %b %Y %H:%M') if scan.created_at else '' }}
+    {% if scan.provider == 'url' %}· URL scan{% else %}· Email scan{% endif %}
+  </div>
   <div>
     <span class="badge {{ scan.classification }}">{{ scan.classification.replace('_', ' ') }}</span>
     {% if scan.confidence %}
       <span class="muted" style="margin-left:0.6rem;">Confidence {{ '%.0f'|format(scan.confidence * 100) }}%</span>
     {% endif %}
   </div>
-  <p style="margin:0.4rem 0 0;">{{ scan.explanations.simple or 'No summary available.' }}</p>
-  <p class="muted" style="margin:0.2rem 0 0;font-size:0.9rem;">
-    Subject: {{ scan.subject }} · From: {{ scan.sender }}
-    {% if scan.model_version %} · Model {{ scan.model_version }}{% endif %}
+  <div class="risk-score">{{ scan.risk_score }}<span style="font-size:1.15rem;color:var(--muted);">% risk</span></div>
+  <div class="score-track" aria-hidden="true"><span style="width: {{ scan.risk_score }}%;"></span></div>
+  <p style="margin:0.5rem 0 0;max-width:40rem;">{{ scan.explanations.simple or 'No summary available.' }}</p>
+  <p class="muted" style="margin:0.35rem 0 0;font-size:0.9rem;">
+    {{ scan.subject }}
+    {% if scan.provider != 'url' %} · From {{ scan.sender }}{% endif %}
+    {% if scan.model_version %} · Logistic Regression {{ scan.model_version }}{% endif %}
   </p>
+  {% if scan.provider == 'url' %}
+  <p class="muted" style="margin:0.35rem 0 0;font-size:0.85rem;">
+    This URL was analysed through the email detection pipeline (the link was wrapped as a message so URL and text features could be extracted).
+  </p>
+  {% endif %}
 </section>
 
 <div class="grid-2" style="margin-top:1rem;">
   <section class="panel">
-    <h2>Risk breakdown</h2>
+    <h2>Why was this detected?</h2>
+    <p class="muted" style="margin-top:-0.5rem;">These are the analysis signals that influenced this result — not a black-box “AI says phishing.”</p>
+    {% if contributions %}
     <div class="breakdown">
-      {% for cat, pts in scan.breakdown.items() %}
+      {% for c in contributions %}
       <div class="breakdown-row">
-        <span>{{ cat }}</span>
-        <div class="bar"><span style="width: {{ [pts * 4, 100]|min }}%;"></span></div>
-        <span>+{{ pts }}</span>
+        <span>{{ c.label }}</span>
+        <div class="bar {% if c.points >= 20 %}danger{% elif c.points >= 10 %}warn{% endif %}"><span style="width: {{ c.pct }}%;"></span></div>
+        <span>+{{ c.points }}</span>
       </div>
-      {% else %}
-      <p class="muted">No breakdown available.</p>
       {% endfor %}
     </div>
+    {% else %}
+    <p class="muted">No elevated analysis signals were recorded for this scan.</p>
+    {% endif %}
   </section>
 
   <section class="panel">
-    <h2>What should I do?</h2>
-    <div class="advice-grid">
-      <div>
-        <strong>Do not</strong>
-        <ul class="advice-list do-not">
-          {% for item in scan.advice.get('do_not', []) %}
-          <li>{{ item }}</li>
-          {% else %}
-          <li class="muted">No restrictions listed.</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div>
-        <strong>Do</strong>
-        <ul class="advice-list do">
-          {% for item in scan.advice.get('do', []) %}
-          <li>{{ item }}</li>
-          {% else %}
-          <li class="muted">No actions listed.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
+    <h2>Model explanation</h2>
+    <p>{{ scan.explanations.simple or 'The classifier did not return a narrative explanation for this scan.' }}</p>
+    <ul class="findings">
+      {% for f in scan.findings[:8] %}
+      <li class="finding {{ f.severity }}">
+        <strong>{{ (f.category or 'signal')|replace('_',' ')|upper }}</strong>
+        <div>{{ f.text }}</div>
+      </li>
+      {% else %}
+      <li class="muted">No detailed findings recorded.</li>
+      {% endfor %}
+    </ul>
   </section>
 </div>
 
 <section class="panel" style="margin-top:1rem;">
-  <h2>Why is this dangerous?</h2>
-  <ul class="findings">
-    {% for f in scan.findings %}
-    <li class="finding {{ f.severity }}">
-      <strong>{{ f.category|upper }}</strong>
-      <div>{{ f.text }}</div>
-    </li>
-    {% else %}
-    <li class="muted">No detailed findings recorded.</li>
-    {% endfor %}
-  </ul>
+  <h2>What should I do?</h2>
+  <div class="advice-grid">
+    <div>
+      <strong>Do not</strong>
+      <ul class="advice-list do-not">
+        {% for item in scan.advice.get('do_not', []) %}
+        <li>{{ item }}</li>
+        {% else %}
+        <li class="muted">No restrictions listed.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <strong>Do</strong>
+      <ul class="advice-list do">
+        {% for item in scan.advice.get('do', []) %}
+        <li>{{ item }}</li>
+        {% else %}
+        <li class="muted">No actions listed.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </section>
 
 <div class="cta-row" style="margin-top:1.25rem;">
-  <a class="btn btn-primary" href="{{ url_for('main.scan') }}">Scan another</a>
-  <a class="btn btn-ghost" href="{{ url_for('main.history') }}">History</a>
+  <a class="btn btn-primary" href="{{ url_for('main.scan_report', scan_id=scan.id) }}">Open report</a>
+  <a class="btn btn-ghost" href="{{ url_for('main.scan') }}">Analyze another email</a>
+  <a class="btn btn-ghost" href="{{ url_for('main.scan_url') }}">Scan another URL</a>
 </div>
 
 <section class="panel" style="margin-top:1.25rem;">
@@ -87,8 +103,8 @@
     <label>Feedback
       <select name="is_correct" id="is_correct" required>
         <option value="">Select…</option>
-        <option value="yes">👍 Yes — correct</option>
-        <option value="no">👎 No — incorrect</option>
+        <option value="yes">Yes — correct</option>
+        <option value="no">No — incorrect</option>
       </select>
     </label>
     <label>If incorrect, what was the correct classification?

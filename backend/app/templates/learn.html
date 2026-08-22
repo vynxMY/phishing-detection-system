@@ -1,25 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Learning Centre{% endblock %}
+{% block title %}Explainability{% endblock %}
 {% block content %}
-<h1 class="page-title">Security awareness</h1>
-<p class="muted" style="margin-top:-0.5rem;margin-bottom:1.25rem;">Short lessons to spot phishing in everyday email.</p>
+<h1 class="page-title">Explainability</h1>
+<p class="muted" style="margin-top:-0.5rem;margin-bottom:1.25rem;">
+  PhishGuard does not stop at a score. After Logistic Regression predicts phishing vs legitimate, the interface shows the signals that influenced that decision.
+</p>
+
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2>How a decision is explained</h2>
+  <div class="how-grid" style="margin-top:0.75rem;">
+    <div class="how-step"><span class="n">1</span><div>You submit a URL or email. The engine extracts TF-IDF text features, URL features, and metadata.</div></div>
+    <div class="how-step"><span class="n">2</span><div>Logistic Regression outputs a phishing probability and a risk classification.</div></div>
+    <div class="how-step"><span class="n">3</span><div>Analysis signals (URL structure, sender mismatch, urgent language, and related scores) are shown as contribution bars.</div></div>
+    <div class="how-step"><span class="n">4</span><div>A short narrative and security advice translate those signals into something a non-expert can act on.</div></div>
+  </div>
+  <p class="muted" style="margin:1rem 0 0;font-size:0.9rem;">
+    Contribution bars use the analyser signal scores stored with each scan. They are not claimed as SHAP values.
+  </p>
+</section>
 
 <div class="grid-2">
   <article class="panel">
-    <h2>Check the real URL</h2>
-    <p>Hover before you click. The text you see may not match the actual destination. Watch for extra subdomains, misspellings, and unusual endings like <code>.xyz</code> or <code>.top</code>.</p>
+    <h2>Suspicious URLs</h2>
+    <p>Hover before you click. Displayed text may not match the real destination. Watch extra subdomains, misspellings, IP addresses, and unusual endings such as <code>.xyz</code> or <code>.top</code>.</p>
   </article>
   <article class="panel">
-    <h2>Sender vs Reply-To</h2>
-    <p>Attackers often display a trusted name while routing replies elsewhere. Compare the From domain with Reply-To and Return-Path when headers are available.</p>
+    <h2>Sender mismatch</h2>
+    <p>Attackers often show a trusted name while routing replies elsewhere. Compare the From domain with Reply-To and Return-Path when headers are available.</p>
   </article>
   <article class="panel">
-    <h2>Urgency is a tactic</h2>
+    <h2>Urgent / threat language</h2>
     <p>Messages that demand immediate action — “account suspended”, “final notice”, “within 24 hours” — are designed to skip your normal caution.</p>
   </article>
   <article class="panel">
-    <h2>Authentication is evidence</h2>
-    <p>SPF, DKIM, or DMARC failures are warning signals, not absolute proof. Combine them with URL and sender checks before deciding.</p>
+    <h2>What to do next</h2>
+    <p>Each result includes do / do-not advice. Use it with the findings list, then open a printable report if you need a record of the analysis.</p>
   </article>
 </div>
 {% endblock %}

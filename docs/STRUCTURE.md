@@ -1,6 +1,8 @@
 # Repository Structure
 
-Canonical layout for **Machine Learning-Based Phishing Email Detection System**.
+Canonical layout for **Explainable Web-Based Phishing Email Detection for User Awareness Using Logistic Regression**.
+
+See [SCOPE.md](SCOPE.md) for Core vs Extension vs Startup.
 
 ```text
 phishing-detection-system/
@@ -43,7 +45,7 @@ phishing-detection-system/
 ├── gmail/oauth/             # Google OAuth + Gmail API helpers
 ├── frontend/                # Placeholder for future React SPA
 ├── docker/                  # Dockerfile + Nginx
-├── docs/                    # Specs, API, deployment, evaluation
+├── docs/                    # SCOPE.md, specs, API, deployment, evaluation
 └── scripts/                 # setup, train, deploy, demo, eval helpers
 ```
 

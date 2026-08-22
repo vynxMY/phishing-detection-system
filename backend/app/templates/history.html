@@ -1,23 +1,46 @@
 {% extends "base.html" %}
-{% block title %}History{% endblock %}
+{% block title %}Analysis History{% endblock %}
 {% block content %}
-<h1 class="page-title">Scan history</h1>
+<h1 class="page-title">Analysis history</h1>
+
+<form class="filters" method="get">
+  <label>Search
+    <input type="search" name="q" value="{{ q or '' }}" placeholder="URL, subject, or sender">
+  </label>
+  <label>Result
+    <select name="classification">
+      <option value="">All</option>
+      {% for opt in ['safe','low_risk','suspicious','high_risk','phishing'] %}
+      <option value="{{ opt }}" {% if classification == opt %}selected{% endif %}>{{ opt.replace('_',' ') }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Source
+    <select name="provider">
+      <option value="">All</option>
+      <option value="url" {% if provider == 'url' %}selected{% endif %}>URL</option>
+      <option value="web" {% if provider == 'web' %}selected{% endif %}>Email</option>
+      <option value="extension" {% if provider == 'extension' %}selected{% endif %}>Extension</option>
+    </select>
+  </label>
+  <button class="btn btn-ghost" type="submit">Filter</button>
+</form>
+
 <section class="panel">
   {% if scans %}
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>When</th><th>Subject</th><th>Sender</th><th>Score</th><th>Result</th><th></th></tr>
+        <tr><th>Target</th><th>Result</th><th>Risk</th><th>Date</th><th></th></tr>
       </thead>
       <tbody>
         {% for s in scans %}
         <tr>
-          <td class="muted">{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '—' }}</td>
           <td>{{ s.subject }}</td>
-          <td>{{ s.sender }}</td>
-          <td>{{ s.risk_score }}</td>
           <td><span class="badge {{ s.classification }}">{{ s.classification.replace('_', ' ') }}</span></td>
-          <td><a href="{{ url_for('main.scan_result', scan_id=s.id) }}">View</a></td>
+          <td>{{ s.risk_score }}%</td>
+          <td class="muted">{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
+          <td><a href="{{ url_for('main.scan_result', scan_id=s.id) }}">Full explanation</a></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -26,16 +49,16 @@
   {% if pagination and pagination.pages > 1 %}
   <div class="pagination">
     {% if pagination.has_prev %}
-      <a href="{{ url_for('main.history', page=pagination.prev_num) }}">← Previous</a>
+      <a href="{{ url_for('main.history', page=pagination.prev_num, q=q, classification=classification, provider=provider) }}">← Previous</a>
     {% endif %}
     <span class="muted">Page {{ pagination.page }} of {{ pagination.pages }}</span>
     {% if pagination.has_next %}
-      <a href="{{ url_for('main.history', page=pagination.next_num) }}">Next →</a>
+      <a href="{{ url_for('main.history', page=pagination.next_num, q=q, classification=classification, provider=provider) }}">Next →</a>
     {% endif %}
   </div>
   {% endif %}
   {% else %}
-  <p class="muted">No history yet.</p>
+  <p class="muted">No matching analyses.</p>
   {% endif %}
 </section>
 {% endblock %}

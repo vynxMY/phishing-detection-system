@@ -1,38 +1,138 @@
 body {
-  width: 260px;
+  width: 300px;
   margin: 0;
-  padding: 14px;
-  font-family: "Segoe UI", system-ui, sans-serif;
-  background: #0b1215;
-  color: #e8eef1;
+  padding: 14px 14px 16px;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  background: #0b1120;
+  color: #f8fafc;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
 }
 
 h1 {
-  margin: 0 0 8px;
-  font-size: 16px;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-p {
-  margin: 0 0 12px;
-  color: #8fa3ad;
+.kicker {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.host {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.status {
+  margin: 10px 0;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.badge {
+  display: inline-block;
+  margin: 12px 0 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
+}
+
+.badge.safe,
+.badge.low_risk { background: rgba(34, 197, 94, 0.16); color: #86efac; }
+.badge.suspicious { background: rgba(245, 158, 11, 0.18); color: #fcd34d; }
+.badge.high_risk,
+.badge.phishing { background: rgba(239, 68, 68, 0.2); color: #fecaca; }
+
+.score-label {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.track {
+  height: 8px;
+  margin: 6px 0;
+  border-radius: 99px;
+  background: #0f172a;
+  overflow: hidden;
+}
+
+.track > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #22c55e, #f59e0b 55%, #ef4444);
+}
+
+.score-num {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.signals {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  color: #f8fafc;
   font-size: 12px;
 }
 
-button {
+.signals li {
+  margin: 0 0 4px;
+  color: #fcd34d;
+}
+
+.btn {
   display: block;
   width: 100%;
   margin-bottom: 8px;
   padding: 8px 10px;
   border: 0;
-  border-radius: 6px;
-  background: #2ec4b6;
-  color: #062421;
+  border-radius: 8px;
+  font: inherit;
   font-weight: 600;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
-#open-settings {
-  background: #18252c;
-  color: #e8eef1;
-  border: 1px solid #2a3b44;
+.btn.primary {
+  background: #2563eb;
+  color: #fff;
 }
+
+.btn.ghost {
+  background: transparent;
+  color: #f8fafc;
+  border: 1px solid #1e3a5f;
+}
+
+a.btn { color: #fff; }

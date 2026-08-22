@@ -24,6 +24,18 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true; // async response
   }
 
+  if (message?.type === "SCAN_URL") {
+    (async () => {
+      try {
+        const result = await scanUrl(message.url);
+        sendResponse({ ok: true, result });
+      } catch (err) {
+        sendResponse({ ok: false, error: String(err.message || err) });
+      }
+    })();
+    return true;
+  }
+
   if (message?.type === "GET_CONFIG") {
     getConfig().then((cfg) => sendResponse(cfg));
     return true;

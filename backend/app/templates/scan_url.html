@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}URL Scanner{% endblock %}
+{% block content %}
+<h1 class="page-title">URL phishing scanner</h1>
+<p class="muted" style="margin-top:-0.75rem;margin-bottom:1.25rem;">
+  Analyze a website link with the same Logistic Regression engine used for email.
+  The URL is wrapped as a short message so the model can apply TF-IDF and URL features, then you get the prediction and the reasons behind it.
+</p>
+
+<section class="panel">
+  <form class="form wide" method="post">
+    {% include "_csrf.html" %}
+    <label>Website URL
+      <input type="url" name="url" placeholder="https://example.com/login" value="{{ url_value or '' }}" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Analyze URL</button>
+  </form>
+</section>
+{% endblock %}

@@ -105,6 +105,38 @@ async function scanEmail(payload) {
   }
 }
 
+async function scanUrl(url) {
+  const cfg = await getConfig();
+  if (!cfg.apiToken) {
+    throw new Error("API token not configured. Open extension settings.");
+  }
+
+  const allowed = await chrome.permissions.contains({ origins: [originPattern(cfg.apiBase)] });
+  if (!allowed) {
+    throw new Error(
+      `No permission for ${cfg.apiBase}. Open Settings, save the API base URL, and allow access when Chrome asks.`
+    );
+  }
+
+  try {
+    const res = await fetchWithRetry(`${cfg.apiBase}/api/v1/extension/scan-url`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cfg.apiToken}`,
+      },
+      body: JSON.stringify({ url }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `Scan failed (${res.status})`);
+    }
+    return res.json();
+  } catch (err) {
+    throw new Error(friendlyNetworkError(err, cfg.apiBase));
+  }
+}
+
 async function pingHealth(apiBase) {
   const base = normalizeApiBase(apiBase);
   const res = await fetchWithRetry(

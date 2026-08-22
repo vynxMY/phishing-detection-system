@@ -1,20 +1,21 @@
 # Master Technical Specification
 
-## Machine Learning-Based Phishing Email Detection System
+## Explainable Web-Based Phishing Email Detection for User Awareness Using Logistic Regression
 
 | Field | Value |
 |---|---|
-| **Document Version** | 1.0.0 |
-| **Status** | Approved for Implementation |
-| **Project Type** | System Development (PSM) |
-| **Official Title** | Machine Learning-Based Phishing Email Detection System |
+| **Document Version** | 1.1.0 |
+| **Status** | Aligned to corrected PSM proposal |
+| **Project Type** | System Development (PSM) — not Research |
+| **Official Title** | Explainable Web-Based Phishing Email Detection for User Awareness Using Logistic Regression |
 | **Last Updated** | 2026-08-22 |
+| **Scope note** | [docs/SCOPE.md](SCOPE.md) is the short authoritative identity. This document is the full spec. |
 
 ---
 
 ## Document Purpose
 
-This document is the **single source of truth** for the Machine Learning-Based Phishing Email Detection System. It defines requirements, architecture, APIs, data models, ML pipelines, deployment, and development phasing.
+This document is the **full technical specification** for the system. It is aligned to the **corrected PSM proposal**. Short identity and in/out-of-scope rules live in [SCOPE.md](SCOPE.md).
 
 Every feature in this specification is tagged with one of three scope labels:
 
@@ -63,34 +64,51 @@ Every feature in this specification is tagged with one of three scope labels:
 
 ### 1.1 Project Identity
 
-The system is a **web-based cybersecurity platform** that detects phishing emails using supervised machine learning, multi-signal email analysis, explainable risk scoring, and user-facing security guidance.
+The system is an **explainable web-based phishing email detection system** that uses **Logistic Regression** to classify emails and explains suspicious characteristics so users become more aware of phishing.
 
-The approved PSM title remains unchanged:
+The official PSM title is:
 
-> **Machine Learning-Based Phishing Email Detection System**
+> **Explainable Web-Based Phishing Email Detection for User Awareness Using Logistic Regression**
 
-The approved proposal establishes this as a **system-development project** with supervised ML, multiple models, TF-IDF/N-grams, URL/sender analysis, Flask, MySQL, HTTPS, and an online client-server architecture. All PSM Core components preserve that foundation.
+This is a **System Development** project (not Research). The corrected proposal specifies:
+
+- **Logistic Regression as the single main model** (not a multi-algorithm bake-off)
+- Baseline = **TF-IDF + Logistic Regression**
+- Improved model = **TF-IDF + URL features + metadata + explainability**
+- Explainability covers suspicious URLs, sender mismatches, urgent/threatening language, and risky phrases
+- Flask + HTML/CSS/JavaScript + MySQL
+- Public phishing/legitimate datasets
+- Agile SDLC
+- **No real-time email-server integration** in the current PSM scope
+
+One-sentence identity:
+
+> An explainable web-based phishing email detection system that uses Logistic Regression to classify phishing emails and provides understandable explanations of suspicious email characteristics to improve user awareness.
 
 ### 1.2 System Vision
 
-The platform shall:
+**PSM Core** shall:
 
-- Detect phishing emails and classify email legitimacy
-- Analyse email content, URLs, sender information, headers, SPF/DKIM/DMARC, and attachments
-- Detect brand impersonation
-- Provide a 0–100 risk score with human-readable explanations
-- Provide actionable security advice
-- Learn from validated user feedback (not instant online retraining)
-- Provide scan history and user awareness/education
-- Provide an administrator dashboard
-- Integrate with Gmail via browser extension **[PSM Extension]**
-- Automatically analyse opened Gmail messages **[PSM Extension]**
-- Operate online over HTTPS **[PSM Core]**
-- Be architected for future commercial deployment **[Post-PSM Startup]**
+- Accept email content through a web interface (paste text; no live mailbox)
+- Extract TF-IDF, URL, and metadata features
+- Classify phishing vs legitimate with Logistic Regression (baseline and improved variants)
+- Explain the decision in plain language (URLs, sender mismatch, urgency/threats, risky phrases)
+- Give security advice that supports user awareness
+- Provide registration, login, scan results, history, user dashboard, and admin dashboard
+- Operate online over HTTPS
+
+**PSM Extension** may additionally:
+
+- Parse `.eml` files, headers, SPF/DKIM/DMARC, and attachments
+- Present a fused 0–100 risk band
+- Integrate Gmail via browser extension / OAuth (same detection API; the model stays on the server)
+- Collect feedback for controlled retraining
+
+**Post-PSM Startup** may add other providers, extra ML algorithms, threat intelligence, and enterprise features.
 
 ### 1.3 Development Strategy
 
-Build in layers. Do **not** attempt the startup version immediately.
+Build in layers. Do **not** redefine the PSM as a Gmail security product.
 
 ```
                   FINAL PLATFORM
@@ -100,25 +118,25 @@ Build in layers. Do **not** attempt the startup version immediately.
    PSM CORE                    PRODUCTION EXTENSIONS
         │                             │
         ▼                             ▼
- ML Classification              Gmail Integration
- Email Analysis                 Browser Extension
- Web Application                Attachment Analysis
- Explainability                 Advanced XAI
- User Accounts                  Feedback Learning
- Admin Dashboard                Risk Engine
+ Logistic Regression            Header / auth analysis
+ TF-IDF baseline vs improved    Attachment analysis
+ URL + metadata features        Fused risk scoring
+ Explainability (core output)   SHAP / counterfactuals
+ Flask web application          Feedback retraining
+ User awareness                 Gmail + browser extension
         │                             │
         └──────────────┬──────────────┘
                        ▼
              Future Startup Platform
 ```
 
-### 1.4 PSM Baseline vs Extended Prototype
+### 1.4 PSM Core vs Extended Prototype vs Startup
 
 | Layer | Description |
 |---|---|
-| **PSM Baseline** | Users paste email text into the web interface; no direct live email server integration (as stated in the approved proposal scope) |
-| **PSM Extension** | Gmail browser extension, automatic scanning, attachment analysis, advanced explainability, feedback pipeline |
-| **Post-PSM Startup** | Multi-provider email, enterprise admin, external threat intelligence, sandboxing, paid API platform |
+| **PSM Core** | Web app: paste email → TF-IDF / URL / metadata → Logistic Regression → classification + explanation + advice. No live email server. |
+| **PSM Extension** | Same detection API plus headers, auth, attachments, risk bands, Gmail extension, feedback |
+| **Post-PSM Startup** | Outlook and other providers, org accounts, extra ML models, threat intel, public API, SOC/SIEM |
 
 ### 1.5 Development Philosophy
 
@@ -165,13 +183,13 @@ Build in layers. Do **not** attempt the startup version immediately.
 
 | ID | Requirement | Scope |
 |---|---|---|
-| FR-010 | System shall classify emails as Safe, Low Risk, Suspicious, High Risk, or Phishing | PSM Core |
-| FR-011 | System shall produce a risk score from 0 to 100 | PSM Core |
-| FR-012 | System shall run Naive Bayes, Logistic Regression, and Random Forest classifiers | PSM Core |
-| FR-013 | System shall support XGBoost as an additional structured classifier | PSM Extension |
-| FR-014 | System shall support a specialized URL classifier | PSM Extension |
-| FR-015 | System shall fuse ML predictions, rule-based signals, and feature scores into a final risk score | PSM Core |
-| FR-016 | System shall maintain an interpretable detection layer alongside any advanced model | PSM Core |
+| FR-010 | System shall classify emails as phishing or legitimate using Logistic Regression | PSM Core |
+| FR-011 | System shall report the Logistic Regression phishing probability | PSM Core |
+| FR-012 | Logistic Regression is the single main model (baseline TF-IDF; improved TF-IDF + URL + metadata) | PSM Core |
+| FR-013 | Additional algorithms (Naive Bayes, Random Forest, XGBoost) are out of PSM scope | Post-PSM Startup |
+| FR-014 | System shall support a specialized URL classifier | Post-PSM Startup |
+| FR-015 | System may fuse LR probability with rule-based signals into a 0–100 banded score | PSM Extension |
+| FR-016 | Explanations shall be derived from interpretable LR evidence (coefficients / feature flags), not a black-box substitute | PSM Core |
 | FR-017 | System shall record the model version used for each scan | PSM Core |
 
 ### 2.3 Analysis Modules
@@ -192,7 +210,7 @@ Build in layers. Do **not** attempt the startup version immediately.
 | ID | Requirement | Scope |
 |---|---|---|
 | FR-030 | System shall explain why an email is dangerous in plain language | PSM Core |
-| FR-031 | System shall provide risk breakdown by category (content, URL, sender, auth, attachment, brand) | PSM Core |
+| FR-031 | System shall explain suspicious URLs, sender mismatch, urgent/threatening language, and risky phrases | PSM Core |
 | FR-032 | System shall highlight suspicious text in email body | PSM Core |
 | FR-033 | System shall provide three explanation levels: Simple, Detailed, Technical | PSM Extension |
 | FR-034 | System shall provide SHAP-based feature contributions | PSM Extension |
@@ -247,6 +265,7 @@ Build in layers. Do **not** attempt the startup version immediately.
 |---|---|---|
 | FR-080 | System shall provide a learning centre with phishing awareness content | PSM Extension |
 | FR-081 | System shall show user-specific risk patterns based on scan history | PSM Extension |
+| FR-082 | System shall support a pre/post user-awareness evaluation (questionnaire) | PSM Core |
 
 ---
 
@@ -328,13 +347,12 @@ Features are tagged: `[Core]`, `[Ext]`, `[Startup]`.
 |---|---|---|
 | Phishing classification | Core | Planned |
 | Legitimate classification | Core | Planned |
-| TF-IDF vectorization | Core | Planned |
-| N-gram features (1–2 grams) | Core | Planned |
-| Naive Bayes classifier | Core | Planned |
-| Logistic Regression classifier | Core | Planned |
-| Random Forest classifier | Core | Planned |
-| XGBoost classifier | Ext | Planned |
-| Specialized URL model | Ext | Planned |
+| TF-IDF vectorization | Core | Implemented |
+| N-gram features (1–2 grams) | Core | Implemented |
+| Baseline: TF-IDF + Logistic Regression | Core | Implemented |
+| Improved: TF-IDF + URL + metadata + LR | Core | Implemented |
+| Naive Bayes / Random Forest / XGBoost | Startup | Future |
+| Specialized URL model | Startup | Future |
 | Advanced NLP / semantic model | Startup | Future |
 
 ### 4.2 Email Analysis
@@ -378,8 +396,9 @@ Features are tagged: `[Core]`, `[Ext]`, `[Startup]`.
 | Authentication explanation | Ext | Planned |
 | SHAP values | Ext | Planned |
 | Counterfactual explanations | Ext | Planned |
-| Natural-language explanation | Ext | Planned |
-| Three explanation levels (Simple/Detailed/Technical) | Ext | Planned |
+| Natural-language explanation | Core | Implemented |
+| Security advice | Core | Implemented |
+| Three explanation levels (Simple/Detailed/Technical) | Ext | Implemented |
 
 ### 4.5 Advice Engine
 
@@ -511,40 +530,35 @@ Features are tagged: `[Core]`, `[Ext]`, `[Startup]`.
                     ┌────────────────────────────────┐
                     │       ML DETECTION ENGINE       │
                     ├────────────────────────────────┤
-                    │ Logistic Regression            │
-                    │ Naive Bayes                    │
-                    │ Random Forest                  │
-                    │ XGBoost                        │
-                    │ URL Model                      │
-                    │ NLP Model                      │
+                    │ Logistic Regression (only)     │
+                    │  • Baseline: TF-IDF            │
+                    │  • Improved: TF-IDF+URL+meta   │
                     └───────────────┬────────────────┘
                                     │
                                     ▼
                     ┌────────────────────────────────┐
-                    │       RISK FUSION ENGINE        │
+                    │      CLASSIFICATION (Core)      │
                     ├────────────────────────────────┤
-                    │ Model predictions              │
-                    │ Security rules                 │
-                    │ Feature scores                 │
-                    │ Authentication results         │
-                    │ Attachment results             │
+                    │ Phishing vs legitimate         │
+                    │ LR phishing probability        │
                     └───────────────┬────────────────┘
                                     │
                                     ▼
-                         ┌───────────────────────┐
-                         │    RISK SCORE 0–100   │
-                         └───────────┬───────────┘
+                    ┌────────────────────────────────┐
+                    │  RISK FUSION 0–100 (Extension)  │
+                    └───────────────┬────────────────┘
                                      │
                                      ▼
                     ┌────────────────────────────────┐
                     │      EXPLAINABILITY ENGINE      │
                     ├────────────────────────────────┤
-                    │ SHAP                           │
-                    │ Feature importance             │
-                    │ Suspicious text highlighting   │
-                    │ URL / Sender / Auth explanations│
-                    │ Counterfactual explanations    │
+                    │ Feature importance (LR coeffs) │
+                    │ Suspicious URLs                │
+                    │ Sender / domain mismatch       │
+                    │ Urgent / threatening language  │
+                    │ Risky phrase highlighting      │
                     │ Natural-language explanation   │
+                    │ SHAP / counterfactual [Ext]    │
                     └───────────────┬────────────────┘
                                     │
                                     ▼
@@ -564,11 +578,11 @@ Features are tagged: `[Core]`, `[Ext]`, `[Startup]`.
 |---|---|---|
 | **Web Application** | User-facing UI for scanning, history, education, admin | Core |
 | **API Server** | REST API, authentication, request routing | Core |
-| **Email Analysis Engine** | Feature extraction from parsed email objects | Core |
-| **ML Detection Engine** | Model inference on extracted features | Core |
-| **Risk Fusion Engine** | Weighted combination of all signals into 0–100 score | Core |
-| **Explainability Engine** | Generate multi-level explanations and advice | Core |
-| **Browser Extension** | Gmail integration, auto-scan, UI overlay | Ext |
+| **Email Analysis Engine** | TF-IDF, URL, and metadata feature extraction | Core |
+| **ML Detection Engine** | Logistic Regression inference (baseline and improved) | Core |
+| **Explainability Engine** | URLs, sender mismatch, urgency, risky phrases, NL explanation, advice | Core |
+| **Risk Fusion Engine** | Optional 0–100 banding from LR + rules | Ext |
+| **Browser Extension** | Gmail UI overlay calling the same HTTPS API (no on-device model) | Ext |
 | **Worker** | Async jobs: attachment analysis, batch retraining | Ext |
 
 ### 5.3 Technology Stack
@@ -588,7 +602,7 @@ Features are tagged: `[Core]`, `[Ext]`, `[Startup]`.
 | Layer | Technology |
 |---|---|
 | Frontend | React, TypeScript |
-| ML | XGBoost, SHAP |
+| ML | SHAP (optional explanations) |
 | ORM | SQLAlchemy |
 | Cache/Queue | Redis |
 | Reverse Proxy | Nginx |
@@ -615,38 +629,47 @@ Features are tagged: `[Core]`, `[Ext]`, `[Startup]`.
 
 ## 6. ML Architecture
 
-### 6.1 Multi-Model Strategy
+### 6.1 Single-Model Strategy (PSM Core)
 
-Detection is **not** a single model. The architecture uses specialized models fused by the Risk Fusion Engine.
+Detection uses **one algorithm**: Logistic Regression. The academic comparison is **feature sets**, not algorithms.
 
 ```
                     EMAIL
                       │
+                      ▼
+                 Preprocessing
+                      │
           ┌───────────┼───────────┐
           ▼           ▼           ▼
-       CONTENT       URL       METADATA
-        MODEL        MODEL       MODEL
+       TF-IDF     URL FEATURES  METADATA
           │           │           │
           └───────────┼───────────┘
                       ▼
-                 RISK FUSION
+            LOGISTIC REGRESSION
                       │
                       ▼
-                 FINAL SCORE
+                CLASSIFICATION
+                      │
+                      ▼
+                EXPLAINABILITY
 ```
+
+**Baseline experiment:** TF-IDF only → LR.  
+**Improved experiment:** TF-IDF + URL features + metadata → LR.  
+Then compare Accuracy, Precision, Recall, F1.
+
+Naive Bayes, Random Forest, XGBoost, and extra URL/NLP models are **Post-PSM Startup**, not PSM deliverables.
 
 ### 6.2 Models
 
 | Model | Algorithm | Purpose | Scope |
 |---|---|---|---|
-| **Model 1** | Naive Bayes | Baseline text classifier | Core |
-| **Model 2** | Logistic Regression | Primary interpretable classifier | Core |
-| **Model 3** | Random Forest | Structured feature comparison | Core |
-| **Model 4** | XGBoost | Stronger structured classifier | Ext |
-| **Model 5** | URL classifier | Specialized URL phishing detection | Ext |
-| **Model 6** | NLP model | Semantic phishing detection | Startup |
+| **Baseline** | Logistic Regression | TF-IDF text-only classifier | Core |
+| **Improved** | Logistic Regression | TF-IDF + URL + metadata | Core |
+| Naive Bayes / Random Forest / XGBoost | Other algorithms | Algorithm bake-off | Startup |
+| Specialized URL / NLP models | Various | Extra detectors | Startup |
 
-**Critical rule:** The advanced model does not replace the explainable model. An interpretable detection layer is always maintained.
+**Critical rule:** Explainability is a **main output** of the improved pipeline, not a post-hoc optional layer. LR coefficients and explicit URL/sender/phrase flags drive explanations.
 
 ### 6.3 Feature Groups
 
@@ -726,44 +749,40 @@ Each scan record references the exact model version(s) used.
 ### 7.1 End-to-End Flow
 
 ```
-Input (text / .eml / Gmail extension)
+Input (web paste; .eml / Gmail extension = Ext)
         │
         ▼
    Email Parser ──→ Normalized Email Object
         │
         ▼
-   Feature Extraction (parallel analysers)
+   Feature Extraction
         │
-        ├── Content features
-        ├── URL features
-        ├── Sender features
-        ├── Header features
-        ├── Auth features
-        └── Attachment features
+        ├── TF-IDF / content (Core)
+        ├── URL features (Core)
+        └── Metadata / sender (Core)
         │
         ▼
-   ML Inference (multiple models)
+   Logistic Regression inference
         │
         ▼
-   Rule Engine (hard signals)
+   Classification: phishing | legitimate  (Core)
         │
         ▼
-   Risk Fusion Engine
+   Optional rule fusion → 0–100 band  (Ext)
         │
         ▼
-   Risk Score (0–100) + Classification
+   Explainability Engine  (Core)
         │
         ▼
-   Explainability Engine
-        │
-        ▼
-   Response (score, breakdown, explanations, advice)
+   Response (label, probability, explanations, advice)
         │
         ▼
    Persist (features + scores + explanations, NOT raw email)
 ```
 
-### 7.2 Risk Score Classification
+### 7.2 Optional risk bands (PSM Extension)
+
+The PSM Core output is **phishing vs legitimate** plus LR probability. The prototype may also map probability (and extra signals) to a 0–100 band for UX:
 
 | Score Range | Classification |
 |---|---|
@@ -1601,21 +1620,23 @@ Collection & Merge
     ↓
 Cleaning (dedup, label validation, encoding normalization)
     ↓
-Feature Engineering (TF-IDF, n-grams, metadata features)
+Feature Engineering (TF-IDF; plus URL + metadata for improved)
     ↓
 Train/Val/Test Split (stratified)
     ↓
-Model Training (NB, LR, RF, XGBoost)
+Logistic Regression training
+  • Baseline: TF-IDF only
+  • Improved: TF-IDF + URL + metadata
     ↓
-Hyperparameter Tuning (GridSearchCV / RandomizedSearchCV)
+Hyperparameter Tuning (GridSearchCV on C, if used)
     ↓
-Evaluation (all metrics)
+Evaluation (Accuracy, Precision, Recall, F1; plus FNR/FPR for the report)
     ↓
-Model Selection
+Compare baseline vs improved
     ↓
-Version & Register (model_versions table)
+Version & Register
     ↓
-Deploy (copy to inference directory, update is_active flag)
+Deploy improved LR as the active inference model
 ```
 
 ### 17.2 Training Scripts Location
@@ -1631,10 +1652,8 @@ ml/
 │   ├── url_features.py
 │   └── metadata_features.py
 ├── models/
-│   ├── naive_bayes.py
 │   ├── logistic_regression.py
-│   ├── random_forest.py
-│   └── xgboost_model.py
+│   └── (other algorithms: not PSM)
 ├── training/
 │   ├── train.py
 │   └── tune.py
@@ -1648,7 +1667,7 @@ ml/
 - Fixed random seed (42)
 - Dataset version hash recorded
 - All hyperparameters saved in model_versions
-- Training scripts runnable via CLI: `python -m ml.training.train --model random_forest --version v1.0.0`
+- Training scripts runnable via CLI: `python -m ml.training.train train --version v1.0.0` and `python -m ml.training.train enhanced --version v1.1.0`
 
 ### 17.4 Inference
 
@@ -1683,12 +1702,16 @@ ml/
 
 ### 18.3 Feature Comparison Study (PSM Evaluation)
 
-Train and evaluate:
+This is the **core academic experiment**.
 
-1. **Text-only model** (TF-IDF + n-grams)
-2. **Text + metadata model** (TF-IDF + URL + sender features)
+1. **Experiment 1 — Baseline:** TF-IDF + Logistic Regression  
+2. **Experiment 2 — Improved:** TF-IDF + URL features + metadata + Logistic Regression  
 
-Compare all metrics. This directly supports the PSM evaluation chapter.
+Compare Accuracy, Precision, Recall, F1 (and report FNR/FPR). Answer:
+
+> Does adding URL and metadata features improve Logistic Regression-based phishing email detection?
+
+3. **Experiment 3 — User awareness:** pre/post questionnaire (see Section 19.4). Do not invent numeric results.
 
 ### 18.4 Data Storage
 
@@ -1721,8 +1744,8 @@ Compare all metrics. This directly supports the PSM evaluation chapter.
 2. Tune hyperparameters on validation set (15%)
 3. Final evaluation **once** on held-out test set (15%)
 4. Report all metrics with confidence intervals where applicable
-5. Compare text-only vs text+metadata models
-6. Compare NB vs LR vs RF (and XGBoost if implemented)
+5. Compare baseline (TF-IDF + LR) vs improved (TF-IDF + URL + metadata + LR)
+6. Do **not** require NB vs LR vs RF as a PSM experiment
 
 ### 19.3 Security-Focused Evaluation
 
@@ -1738,17 +1761,14 @@ Beyond standard test set:
 | Attachment phishing | Malicious attachment scenarios | Ext |
 | AI-generated phishing | LLM-generated phishing text | Ext |
 
-### 19.4 User Evaluation (Explainability)
+### 19.4 User Evaluation (Experiment 3 — awareness)
 
-Give users a set of emails and measure:
+Because the title includes **user awareness**, ML metrics are not enough.
 
-- Detection accuracy (user vs system)
-- User understanding (pre/post explanation quiz)
-- Trust rating (Likert scale)
-- Decision confidence
-- Explanation usefulness rating
+**Before** using the system: participants label a pack of phishing/legitimate emails (yes/no + confidence).  
+**After** seeing explanations: a matched pack, plus usefulness/trust ratings.
 
-This provides evidence that explainability features add value.
+Compare awareness, confidence, and correct decisions **from collected data only**. Protocol: [USER_EVALUATION.md](USER_EVALUATION.md).
 
 ---
 
@@ -2157,7 +2177,7 @@ phishing-detection-system/
 
 ### 25.3 Scope Framing for Supervisor
 
-> "The core PSM implementation focuses on the approved machine-learning phishing detection system with web-based analysis, explainability, and online deployment. The Gmail integration, browser extension, and advanced components are extensions of the prototype architecture documented as PSM Extension features."
+> "The core PSM implementation is an explainable web-based phishing email detector using Logistic Regression (TF-IDF baseline vs TF-IDF + URL + metadata), with natural-language explanations for user awareness. Gmail integration, the browser extension, attachment analysis, and extra ML algorithms are prototype extensions — not a change of the approved project identity. The system does not require real-time email-server integration."
 
 ---
 
@@ -2169,20 +2189,20 @@ phishing-detection-system/
 |---|---|---|---|---|
 | 1 | Requirements & Architecture | 1 week | Core | This document, ERD, API spec |
 | 2 | Dataset & Preprocessing | 2 weeks | Core | Clean training dataset, feature extraction |
-| 3 | Baseline ML | 2 weeks | Core | NB, LR, RF trained and evaluated |
-| 4 | Enhanced Detection | 2 weeks | Core | URL/sender/header features, comparison study |
-| 5 | Email Parser | 1 week | Core/Ext | Normalized email object, .eml support |
-| 6 | Risk Engine | 1 week | Core | Fusion engine, 0–100 score, classification |
-| 7 | Explainability | 2 weeks | Core/Ext | Explanations, advice, highlighting |
-| 8 | Web Application | 3 weeks | Core | Full web app with auth, scan, history, admin |
+| 3 | Baseline ML | 2 weeks | Core | TF-IDF + Logistic Regression; Accuracy/P/R/F1 |
+| 4 | Improved Detection | 2 weeks | Core | URL + metadata features; baseline vs improved comparison |
+| 5 | Email Parser | 1 week | Core/Ext | Normalized email object; `.eml` is Ext |
+| 6 | Presentation layer | 1 week | Core/Ext | Core: label + probability; Ext: 0–100 fusion |
+| 7 | Explainability | 2 weeks | Core | URLs, sender mismatch, urgency, phrases, advice |
+| 8 | Web Application | 3 weeks | Core | Auth, scan, results, history, admin |
 | 9 | Attachment Analysis | 2 weeks | Ext | Static analysis pipeline |
 | 10 | Feedback Learning | 1 week | Ext | Feedback UI, admin review, retraining pipeline |
-| 11 | Browser Extension | 2 weeks | Ext | Chrome MV3 extension for Gmail |
+| 11 | Browser Extension | 2 weeks | Ext | Chrome MV3; calls HTTPS API (no on-device model) |
 | 12 | Gmail Integration | 2 weeks | Ext | OAuth, auto-scan, settings |
-| 13 | Deployment | 1 week | Core | Docker, HTTPS, online deployment |
+| 13 | Deployment | 1 week | Core | Docker, HTTPS, online web app |
 | 14 | Security Testing | 1 week | Core/Ext | OWASP testing, pen test checklist |
-| 15 | ML Evaluation | 2 weeks | Core | Full evaluation report |
-| 16 | User Evaluation | 1 week | Ext | Explainability user study |
+| 15 | ML Evaluation | 2 weeks | Core | Experiments 1–2 report |
+| 16 | User Evaluation | 1 week | Core | Experiment 3 awareness pre/post |
 
 **Total estimated duration:** ~26 weeks
 
@@ -2228,12 +2248,12 @@ Sprint:  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
 
 | Milestone | Sprint | Criteria |
 |---|---|---|
-| M1: ML Baseline Working | 3 | 3 models trained, metrics reported |
-| M2: Detection Pipeline Complete | 6 | End-to-end scan returns risk score |
-| M3: Web App Demo | 8 | Online web app with scan + results |
-| M4: PSM Core Complete | 8 + 13 | All Core features deployed online |
-| M5: Extension Demo | 11 | Gmail extension shows risk badge |
-| M6: Full Evaluation | 15 | ML + security + user evaluation done |
+| M1: ML Baseline Working | 3 | TF-IDF + LR trained; Accuracy/P/R/F1 reported |
+| M2: Improved LR Complete | 4 | URL+metadata LR compared to baseline |
+| M3: Web App Demo | 8 | Online web app with scan + explanations |
+| M4: PSM Core Complete | 8 + 13 + 16 | Core features deployed; Experiments 1–3 documented |
+| M5: Extension Demo | 11 | Optional Gmail overlay using the same API |
+| M6: Full Evaluation | 15–16 | Baseline vs improved + awareness study |
 
 ---
 
@@ -2320,6 +2340,7 @@ CONTINUOUS IMPROVEMENT
 | SIEM/SOC integration | Splunk, Elastic, webhook alerts |
 | Attachment sandboxing | Dynamic analysis in isolated environment |
 | Advanced NLP | Transformer-based semantic phishing detection |
+| Extra classifiers | Naive Bayes, Random Forest, XGBoost — not used in PSM |
 | API platform | Public REST API with API keys and billing |
 | Paid plans | Free / Pro / Enterprise tiers |
 

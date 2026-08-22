@@ -3,29 +3,52 @@
 {% block content %}
 <section class="hero">
   <div class="hero-brand">PhishGuard</div>
-  <h1>Detect phishing before you click.</h1>
+  <h1>Detect phishing. Understand the threat.</h1>
   <p class="lede">
-    Paste an email or upload a message. Get a 0–100 risk score, clear explanations,
-    and practical advice — powered by machine learning and multi-signal analysis.
+    Submit a URL or email. Logistic Regression predicts the risk, then shows the signals that drove the decision.
   </p>
   <div class="cta-row">
-    <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Get started</a>
-    <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Log in</a>
+    <a class="btn btn-primary" href="{{ url_for('auth.login', next=url_for('main.scan_url')) }}">Scan a URL</a>
+    <a class="btn btn-ghost" href="{{ url_for('auth.login', next=url_for('main.scan')) }}">Analyze an email</a>
   </div>
+  <form class="hero-search" method="get" action="{{ url_for('main.scan_url') }}">
+    <input type="url" name="url" placeholder="https://example.com" aria-label="URL to analyse">
+    <button class="btn btn-primary" type="submit">Analyze URL</button>
+  </form>
+  <p class="muted" style="margin:0;font-size:0.85rem;">Sign in to run a scan. Results always include an explanation — not just a score.</p>
 </section>
 
-<section class="feature-strip">
+{% if lab %}
+<div class="proof-row">
+  <div><strong>{{ lab.accuracy }}%</strong>Held-out accuracy ({{ lab.version }})</div>
+  <div><strong>{{ lab.f1 }}%</strong>F1-score on the test set</div>
+  <div><strong>Logistic Regression</strong>Single main model</div>
+</div>
+<p class="muted" style="font-size:0.82rem;margin-top:0.4rem;">Lab metrics from the trained model’s held-out test set — not live traffic counts.</p>
+{% endif %}
+
+<section id="features" class="feature-strip">
   <article>
-    <h3>ML classification</h3>
-    <p>Logistic Regression with TF-IDF and n-grams, fused with rule-based signals.</p>
+    <h3>Explainable results</h3>
+    <p>See which URL, sender, and language signals influenced the prediction.</p>
   </article>
   <article>
-    <h3>Explainable risk</h3>
-    <p>See why an email is risky — URLs, sender mismatch, authentication, and more.</p>
+    <h3>Risk analysis</h3>
+    <p>Phishing vs legitimate, with probability and a clear breakdown of evidence.</p>
   </article>
   <article>
-    <h3>Actionable advice</h3>
-    <p>Clear do / don’t guidance so users know what to do next.</p>
+    <h3>Reports</h3>
+    <p>Open any past scan and print a full analysis report for your records.</p>
   </article>
+</section>
+
+<section id="how" class="pipeline">
+  <strong>How a scan works</strong>
+  <div class="how-grid">
+    <div class="how-step"><span class="n">1</span><div>You submit a URL or email in the web app.</div></div>
+    <div class="how-step"><span class="n">2</span><div>The engine extracts TF-IDF, URL, and metadata features.</div></div>
+    <div class="how-step"><span class="n">3</span><div>Logistic Regression predicts phishing vs legitimate.</div></div>
+    <div class="how-step"><span class="n">4</span><div>Explainability turns coefficients and signals into plain language and advice.</div></div>
+  </div>
 </section>
 {% endblock %}

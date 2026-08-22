@@ -6,10 +6,29 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>PhishGuard</h1>
-  <p id="status">Loading…</p>
-  <button id="rescan">Rescan current email</button>
-  <button id="open-settings">Settings</button>
+  <header>
+    <span class="mark" aria-hidden="true"></span>
+    <h1>PhishGuard</h1>
+  </header>
+
+  <section>
+    <p class="kicker" id="mode-label">Current website</p>
+    <p class="host" id="host">…</p>
+  </section>
+
+  <div id="result" hidden>
+    <p class="badge" id="class-badge">—</p>
+    <p class="score-label">Risk score</p>
+    <div class="track" aria-hidden="true"><span id="score-bar"></span></div>
+    <p class="score-num" id="score-num">—</p>
+    <ul class="signals" id="signals"></ul>
+    <a class="btn primary" id="full-analysis" href="#" target="_blank" rel="noopener">View full analysis</a>
+  </div>
+
+  <p class="status" id="status">Loading…</p>
+
+  <button type="button" class="btn primary" id="scan-now">Analyze this page</button>
+  <button type="button" class="btn ghost" id="open-settings">Settings</button>
   <script src="popup.js"></script>
 </body>
 </html>
