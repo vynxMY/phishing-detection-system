@@ -74,21 +74,38 @@ def verdict_for(classification: str) -> dict:
 
 def with_verdict(view: dict) -> dict:
     view["verdict"] = verdict_for(view.get("classification") or "")
+    expl = view.get("explanations") or {}
+    why = expl.get("why_dangerous")
+    if why:
+        view["verdict"]["lead"] = why
+    conf_label = expl.get("confidence_label")
+    if not conf_label and view.get("confidence") is not None:
+        c = float(view["confidence"])
+        conf_label = "High" if c >= 0.65 else ("Low" if c < 0.4 else "Medium")
+    view["confidence_label"] = conf_label
     return view
 
 
 def get_pipeline() -> DetectionPipeline:
     global _pipeline
     if _pipeline is None:
-        version = current_app.config.get("MODEL_VERSION", "v1.0.0")
+        version = current_app.config.get("MODEL_VERSION", "v1.1.0")
         _pipeline = DetectionPipeline(model_version=version)
     return _pipeline
 
 
 def load_lab_metrics() -> dict | None:
     """Held-out test metrics from training — never invent dashboard vanity numbers."""
-    path = ML_ARTIFACTS / "training_summary_v1.0.0.json"
-    if not path.exists():
+    # Prefer newest summary that exists; fall back to baseline Experiment 1.
+    for name in (
+        "training_summary_v1.1.0-text_metadata.json",
+        "training_summary_v1.1.0.json",
+        "training_summary_v1.0.0.json",
+    ):
+        path = ML_ARTIFACTS / name
+        if path.exists():
+            break
+    else:
         return None
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -98,12 +115,22 @@ def load_lab_metrics() -> dict | None:
     if not tm:
         return None
     return {
-        "version": data.get("model_version") or "v1.0.0",
+        "version": data.get("model_version") or path.stem.replace("training_summary_", ""),
         "algorithm": data.get("algorithm") or "logistic_regression",
         "accuracy": round(float(tm.get("accuracy") or 0) * 100, 2),
         "precision": round(float(tm.get("precision") or 0) * 100, 2),
         "recall": round(float(tm.get("recall") or 0) * 100, 2),
         "f1": round(float(tm.get("f1") or 0) * 100, 2),
+        "fnr": (
+            round(float(tm.get("false_negative_rate") or tm.get("fnr") or 0) * 100, 2)
+            if (tm.get("false_negative_rate") is not None or tm.get("fnr") is not None)
+            else None
+        ),
+        "fpr": (
+            round(float(tm.get("false_positive_rate") or tm.get("fpr") or 0) * 100, 2)
+            if (tm.get("false_positive_rate") is not None or tm.get("fpr") is not None)
+            else None
+        ),
     }
 
 

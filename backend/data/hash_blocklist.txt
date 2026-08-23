@@ -1,4 +1,6 @@
 # Local malicious file hash blocklist (SHA-256, one per line)
-# Add known-bad hashes here for Sprint 9 static analysis.
-# Example (fake):
-# e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# Used by Sprint 9 static attachment analysis (offline — no VirusTotal).
+#
+# Demo hash: SHA-256 of bytes 01 02 03 (matches the sample .eml in tests /
+# docs/samples/demo_dangerous_attachment.eml).
+039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81

@@ -9,6 +9,7 @@ import pandas as pd
 
 from ml.features.url_utils import extract_urls, parse_url_parts
 
+# Width must stay compatible with trained v1.0 / v1.1 extractors (13 dims).
 URL_FEATURE_NAMES = [
     "url_count",
     "max_url_length",

@@ -49,11 +49,24 @@ def generate_counterfactual(analyses: dict, current_score: int, ml_prob: float |
     }
 
     estimated = fuse_risk(perturbed, ml_phishing_probability=min(ml_prob or 0.2, 0.3))
+    delta = current_score - estimated.risk_score
+    if delta > 0:
+        summary = (
+            f"If authentication passed and the suspicious URL/sender/attachment signals "
+            f"were removed, estimated risk would drop by about {delta} points "
+            f"(to ~{estimated.risk_score}/100)."
+        )
+    else:
+        summary = (
+            "Even after removing common phishing signals, estimated risk stays elevated — "
+            "review the message carefully."
+        )
 
     return {
         "current_risk": current_score,
         "estimated_risk": estimated.risk_score,
-        "delta": current_score - estimated.risk_score,
+        "delta": delta,
+        "summary": summary,
         "current_signals": {
             k: ("FAIL" if v == "fail" else ("YES" if v is True else ("NO" if v is False else str(v).upper())))
             for k, v in current.items()

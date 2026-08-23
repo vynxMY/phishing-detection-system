@@ -45,3 +45,10 @@ def test_html_javascript_attachment():
     result = analyze_single_attachment(_att("page.html", html))
     assert any(i["type"] == "javascript" for i in result["issues"])
     assert result["embedded_urls"]
+
+
+def test_demo_blocklist_hash():
+    # Matches docs/samples/demo_dangerous_attachment.eml payload (AQID → 01 02 03)
+    result = analyze_single_attachment(_att("invoice.pdf.exe", bytes([1, 2, 3])))
+    assert any(i["type"] == "blocklist_hash" for i in result["issues"])
+    assert result["score"] >= 50

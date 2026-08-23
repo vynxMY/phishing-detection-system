@@ -18,8 +18,10 @@ Do **not** invent percentages. Report only what participants actually scored.
 
 1. Web app running (local or deployed URL)
 2. Email pack: `docs/user_eval/email_pack.json`
-3. Survey sheet: `docs/user_eval/survey.csv` (copy per participant)
-4. Scoring script: `scripts/score_user_eval.py`
+3. Survey sheet: `docs/user_eval/survey_template.csv` (copy per participant as `survey.csv`)
+4. Facilitator checklist: `docs/user_eval/FACILITATOR_CHECKLIST.md`
+5. Scoring script: `scripts/score_user_eval.py`
+6. Optional attachment demo: `docs/samples/demo_dangerous_attachment.eml`
 
 ## Procedure (per participant, ~25–35 minutes)
 

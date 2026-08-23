@@ -226,7 +226,16 @@ def scan_gmail_message(message_id: str):
         "scan_id": scan_row.id,
         "risk_score": result["risk_score"],
         "classification": result["classification"],
-        "explanations": result["explanations"],
+        "confidence": result.get("confidence"),
+        "confidence_label": (result.get("explanations") or {}).get("confidence_label"),
+        "explanations": {
+            "simple": result["explanations"].get("simple"),
+            "findings": result["explanations"].get("findings", [])[:10],
+            "why_dangerous": result["explanations"].get("why_dangerous"),
+            "signal_contributions": result["explanations"].get("signal_contributions", [])[:6],
+        },
+        "advice": result.get("advice"),
+        "model_version": result.get("model_version"),
     }
 
 

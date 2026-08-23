@@ -14,14 +14,18 @@
 {% if lab %}
 <section class="panel" style="margin-bottom:1.25rem;">
   <h2>Model performance (held-out test set)</h2>
-  <p class="muted" style="margin-top:-0.35rem;">Lab metrics from training — not live traffic accuracy.</p>
+  <p class="muted" style="margin-top:-0.35rem;">Lab metrics from training — emphasize F1 / Precision / Recall over accuracy alone. Not live traffic performance.</p>
   <div class="grid-4">
-    <div class="stat"><div class="label">Accuracy</div><div class="value" style="font-size:1.3rem;">{{ lab.accuracy }}%</div></div>
     <div class="stat"><div class="label">F1</div><div class="value" style="font-size:1.3rem;">{{ lab.f1 }}%</div></div>
     <div class="stat"><div class="label">Precision</div><div class="value" style="font-size:1.3rem;">{{ lab.precision }}%</div></div>
     <div class="stat"><div class="label">Recall</div><div class="value" style="font-size:1.3rem;">{{ lab.recall }}%</div></div>
+    <div class="stat"><div class="label">Accuracy</div><div class="value" style="font-size:1.3rem;">{{ lab.accuracy }}%</div></div>
   </div>
-  <p class="muted" style="margin:0.75rem 0 0;font-size:0.88rem;">Model {{ lab.version }} · Logistic Regression</p>
+  <p class="muted" style="margin:0.75rem 0 0;font-size:0.88rem;">
+    Model {{ lab.version }} · Logistic Regression
+    {% if lab.fnr is not none %} · FNR {{ lab.fnr }}%{% endif %}
+    {% if lab.fpr is not none %} · FPR {{ lab.fpr }}%{% endif %}
+  </p>
 </section>
 {% endif %}
 

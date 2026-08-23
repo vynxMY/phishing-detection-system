@@ -1,11 +1,11 @@
 {
   "model_version": "v1.0.0",
   "algorithm": "logistic_regression",
-  "trained_at": "2026-08-22T07:51:59.371357+00:00",
-  "feature_shape": [
-    9975,
-    10010
-  ],
+  "trained_at": "2026-08-22T07:51:59.371111+00:00",
+  "source_reports": {
+    "validation": "lr_v1.0.0_validation_report.json",
+    "test": "lr_v1.0.0_test_report.json"
+  },
   "best_params": {},
   "validation_metrics": {
     "accuracy": 0.9874,
@@ -58,5 +58,6 @@
   "artifacts": {
     "model": "logistic_regression_v1.0.0.joblib",
     "feature_extractor": "feature_extractor_v1.0.0.joblib"
-  }
+  },
+  "note": "Held-out metrics copied from evaluation reports. Primary story: Precision / Recall / F1 (not accuracy alone)."
 }

@@ -11,13 +11,18 @@
   <p><strong>Verdict</strong><br>
     <span class="badge {{ scan.classification }}">{{ scan.verdict.verdict }}</span>
   </p>
-  <p><strong>Risk</strong><br>{{ scan.verdict.risk_label }}</p>
-  <p><strong>Model probability</strong><br>{{ scan.risk_score }}%</p>
+  <p><strong>Risk</strong><br>{{ scan.verdict.risk_label }} · {{ scan.risk_score }}/100</p>
+  {% if scan.confidence_label %}
+  <p><strong>Confidence</strong><br>{{ scan.confidence_label }}</p>
+  {% endif %}
   <p><strong>Generated</strong><br>{{ generated.strftime('%d %B %Y %H:%M UTC') if generated else '' }}</p>
 </section>
 
 <section class="panel" style="margin-top:1rem;">
   <h2>Why was it flagged?</h2>
+  {% if scan.explanations.why_dangerous %}
+  <p style="font-weight:600;">{{ scan.explanations.why_dangerous }}</p>
+  {% endif %}
   <p>{{ scan.explanations.simple or scan.verdict.lead }}</p>
   <ul>
     {% for f in scan.findings %}
@@ -26,6 +31,28 @@
     <li class="muted">No indicators recorded.</li>
     {% endfor %}
   </ul>
+  {% set att = scan.explanations.attachment_summary %}
+  {% if att and att.count %}
+  <h3>Attachments</h3>
+  <ul>
+    {% for file in att.files %}
+    <li>{{ file.filename }}{% if file.score %} (static risk {{ file.score }}/100){% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% set auth = scan.explanations.auth_summary %}
+  {% if auth %}
+  <h3>Authentication</h3>
+  <p>SPF: {{ auth.spf or 'none' }} · DKIM: {{ auth.dkim or 'none' }} · DMARC: {{ auth.dmarc or 'none' }}</p>
+  {% endif %}
+  {% if scan.explanations.signal_contributions %}
+  <h3>Top signals</h3>
+  <ul>
+    {% for c in scan.explanations.signal_contributions[:6] %}
+    <li>{{ c.label }}{% if c.contribution %} (+{{ '%.2f'|format(c.contribution) }}){% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <h3>Recommended action</h3>
   <p>{{ scan.verdict.recommendation }}</p>
   {% if scan.advice.get('do_not') or scan.advice.get('do') %}
@@ -38,12 +65,16 @@
     {% for item in scan.advice.get('do', []) %}<li>{{ item }}</li>{% endfor %}
   </ul>
   {% endif %}
+  {% if scan.explanations.counterfactual and scan.explanations.counterfactual.summary %}
+  <h3>What would lower the risk?</h3>
+  <p class="muted">{{ scan.explanations.counterfactual.summary }}</p>
+  {% endif %}
 </section>
 
 <section class="panel" style="margin-top:1rem;">
   <h2>Technical information</h2>
   <p>Model: Logistic Regression{% if scan.model_version %} {{ scan.model_version }}{% endif %}</p>
-  <p>Features: TF-IDF + URL + metadata</p>
+  <p>Features: TF-IDF + URL + metadata · hybrid rules · offline reputation</p>
   <p class="muted">PhishGuard is an academic prototype. Results are not a guarantee that a website is safe.</p>
 </section>
 

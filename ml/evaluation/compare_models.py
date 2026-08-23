@@ -24,9 +24,9 @@ def _train_and_evaluate(
     fixed_c: float | None = None,
 ) -> dict:
     label = "text_only" if mode == "text_only" else "text_metadata"
-    print(f"\n{'─' * 50}")
+    print(f"\n{'-' * 50}")
     print(f"Training: {label.upper()} model")
-    print(f"{'─' * 50}")
+    print(f"{'-' * 50}")
 
     extractor = CombinedFeatureExtractor(mode=mode)
     X_train = extractor.fit_transform(train_df)
@@ -75,7 +75,7 @@ def print_comparison(results: list[dict]) -> None:
     print("SPRINT 4 — MODEL COMPARISON (Test Set)")
     print(f"{'=' * 70}")
     print(f"{'Metric':<22} {'Text Only':>18} {'Text + Metadata':>18} {'Delta':>10}")
-    print(f"{'─' * 70}")
+    print(f"{'-' * 70}")
 
     text_only = next(r for r in results if r["mode"] == "text_only")
     full = next(r for r in results if r["mode"] == "full")
@@ -105,7 +105,7 @@ def print_comparison(results: list[dict]) -> None:
             better = "↑" if delta > 0 else ("↓" if delta < 0 else "=")
         print(f"{label:<22} {v1:>17.2%} {v2:>17.2%} {sign}{delta:.2%} {better}")
 
-    print(f"{'─' * 70}")
+    print(f"{'-' * 70}")
     print(f"{'Features':<22} {str(text_only['feature_shape'][1]):>18} {str(full['feature_shape'][1]):>18}")
     print(f"{'=' * 70}\n")
 
@@ -140,6 +140,31 @@ def run_comparison(
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(summary, indent=2))
     print(f"Comparison report saved: {report_path}")
+
+    # Also emit training_summary_*.json so the web lab metrics loader can show Exp 2.
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+    for result in results:
+        model_version = f"{version}-{result['label']}"
+        training_summary = {
+            "model_version": model_version,
+            "algorithm": "logistic_regression",
+            "trained_at": summary["compared_at"],
+            "feature_shape": result["feature_shape"],
+            "best_params": result.get("best_params") or {},
+            "validation_metrics": result["validation_metrics"],
+            "test_metrics": result["test_metrics"],
+            "artifacts": {
+                "model": result["model_path"],
+                "feature_extractor": result["extractor_path"],
+            },
+            "note": (
+                "Held-out metrics from enhanced training. "
+                "Primary story: Precision / Recall / F1 (not accuracy alone)."
+            ),
+        }
+        out = ARTIFACTS_DIR / f"training_summary_{model_version}.json"
+        out.write_text(json.dumps(training_summary, indent=2), encoding="utf-8")
+        print(f"Training summary saved: {out}")
 
     return summary
 

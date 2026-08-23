@@ -7,6 +7,8 @@ import hashlib
 import io
 import re
 import zipfile
+from pathlib import Path
+
 from backend.app.attachments.file_types import detect_type
 from backend.app.email_parser.models import EmailAttachment, NormalizedEmail
 from ml.features.url_utils import extract_urls
@@ -73,6 +75,7 @@ def analyze_single_attachment(att: EmailAttachment, blocklist: set[str] | None =
         issues.append({
             "type": "extension_mismatch",
             "severity": "critical",
+            "contribution": 0.3,
             "filename": name,
             "text": f"Filename '{name}' disguises an executable as a document (double extension).",
         })
@@ -82,6 +85,7 @@ def analyze_single_attachment(att: EmailAttachment, blocklist: set[str] | None =
         issues.append({
             "type": "magic_mismatch",
             "severity": "critical",
+            "contribution": 0.25,
             "filename": name,
             "text": (
                 f"Declared extension '{type_info['declared_ext']}' does not match "
@@ -96,6 +100,7 @@ def analyze_single_attachment(att: EmailAttachment, blocklist: set[str] | None =
             issues.append({
                 "type": "dangerous_type",
                 "severity": "critical",
+                "contribution": 0.28,
                 "filename": name,
                 "text": f"Attachment '{name}' is a potentially dangerous file type ({ext}).",
             })
@@ -106,6 +111,7 @@ def analyze_single_attachment(att: EmailAttachment, blocklist: set[str] | None =
         issues.append({
             "type": "blocklist_hash",
             "severity": "critical",
+            "contribution": 0.35,
             "filename": name,
             "text": f"Attachment '{name}' matches a known malicious file hash.",
         })

@@ -2,40 +2,17 @@
 
 from __future__ import annotations
 
-import re
-
+from backend.app.detection.brand_utils import (
+    BRANDS,
+    brand_in_hostname,
+    lookalike_brand_domain,
+)
 from backend.app.email_parser.models import NormalizedEmail
-
-BRANDS = {
-    "microsoft": ["microsoft.com", "outlook.com", "office.com", "live.com"],
-    "paypal": ["paypal.com"],
-    "amazon": ["amazon.com", "amazon.co.uk"],
-    "apple": ["apple.com", "icloud.com"],
-    "google": ["google.com", "gmail.com"],
-    "netflix": ["netflix.com"],
-    "bank": [],  # generic keyword only
-}
 
 FREE_PROVIDERS = {
     "gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "aol.com",
     "mail.com", "protonmail.com", "icloud.com", "live.com", "msn.com",
 }
-
-
-def _levenshtein(a: str, b: str) -> int:
-    if a == b:
-        return 0
-    if not a:
-        return len(b)
-    if not b:
-        return len(a)
-    prev = list(range(len(b) + 1))
-    for i, ca in enumerate(a, 1):
-        curr = [i]
-        for j, cb in enumerate(b, 1):
-            curr.append(min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + (ca != cb)))
-        prev = curr
-    return prev[-1]
 
 
 def analyze_sender(email: NormalizedEmail) -> dict:
@@ -54,6 +31,7 @@ def analyze_sender(email: NormalizedEmail) -> dict:
         issues.append({
             "type": "reply_to_mismatch",
             "severity": "critical",
+            "contribution": 0.25,
             "text": (
                 f"Reply-To domain ({reply_domain}) differs from "
                 f"sender domain ({from_domain})."
@@ -65,6 +43,7 @@ def analyze_sender(email: NormalizedEmail) -> dict:
         issues.append({
             "type": "return_path_mismatch",
             "severity": "warning",
+            "contribution": 0.12,
             "text": (
                 f"Return-Path domain ({return_domain}) differs from "
                 f"sender domain ({from_domain})."
@@ -73,18 +52,34 @@ def analyze_sender(email: NormalizedEmail) -> dict:
 
     display = (email.sender.display_name or "").lower()
     for brand, domains in BRANDS.items():
-        if brand in display and from_domain and not any(from_domain.endswith(d) for d in domains or [brand + ".com"]):
-            if domains and not any(from_domain.endswith(d) for d in domains):
+        token = brand.split()[0]
+        if token in display and from_domain and domains:
+            if not any(from_domain.endswith(d) for d in domains):
                 score += 30
                 issues.append({
                     "type": "display_name_brand_mismatch",
                     "severity": "critical",
+                    "contribution": 0.22,
                     "text": (
                         f"Display name suggests {brand.title()}, but sender domain "
                         f"is {from_domain}."
                     ),
                 })
                 break
+
+    lookalike = lookalike_brand_domain(from_domain)
+    if lookalike:
+        score += 35
+        issues.append({
+            "type": "lookalike_sender_domain",
+            "severity": "critical",
+            "contribution": 0.28,
+            "text": (
+                f"Sender domain '{lookalike['registered_domain']}' looks similar to "
+                f"official '{lookalike['official_domain']}' "
+                f"(possible {lookalike['brand'].title()} impersonation)."
+            ),
+        })
 
     return {
         "score": min(100, score),
@@ -105,40 +100,56 @@ def analyze_brand(email: NormalizedEmail) -> dict:
     claimed = None
 
     for brand, domains in BRANDS.items():
-        if brand == "bank":
-            continue
-        mentioned = brand in text or brand in display
+        token = brand.split()[0]
+        mentioned = token in text or token in display
         if not mentioned:
             continue
         claimed = brand
         if from_domain and domains and not any(from_domain.endswith(d) for d in domains):
-            # Check lookalike domain
-            for legit in domains:
-                base = legit.split(".")[0]
-                if base in from_domain and from_domain != legit:
-                    dist = _levenshtein(from_domain, legit)
-                    if 0 < dist <= 3:
-                        score += 40
-                        issues.append({
-                            "type": "lookalike_domain",
-                            "severity": "critical",
-                            "text": (
-                                f"Sender domain '{from_domain}' looks similar to "
-                                f"legitimate '{legit}' (possible impersonation of {brand.title()})."
-                            ),
-                        })
-                        break
+            lookalike = lookalike_brand_domain(from_domain)
+            if lookalike and lookalike["brand"] == brand:
+                score += 40
+                issues.append({
+                    "type": "lookalike_domain",
+                    "severity": "critical",
+                    "contribution": 0.3,
+                    "text": (
+                        f"Sender domain '{from_domain}' looks similar to "
+                        f"legitimate '{lookalike['official_domain']}' "
+                        f"(possible impersonation of {brand.title()})."
+                    ),
+                })
             else:
                 score += 25
                 issues.append({
                     "type": "brand_impersonation",
                     "severity": "warning",
+                    "contribution": 0.18,
                     "text": (
                         f"Message appears to reference {brand.title()}, but sender "
                         f"domain is {from_domain or 'unknown'}."
                     ),
                 })
         break
+
+    # Brand tokens inside linked hostnames (paypal.com.evil.tld)
+    for u in email.urls:
+        host = (u.href or "").lower()
+        hit = brand_in_hostname(host)
+        if hit:
+            score += 35
+            issues.append({
+                "type": "brand_in_url_host",
+                "severity": "critical",
+                "contribution": 0.3,
+                "text": (
+                    f"A link uses '{hit['brand']}' in the hostname, but the real "
+                    f"registered domain is '{hit['registered_domain']}' — not an "
+                    f"official {hit['brand'].title()} domain."
+                ),
+            })
+            claimed = claimed or hit["brand"]
+            break
 
     return {
         "score": min(100, score),

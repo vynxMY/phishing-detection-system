@@ -42,6 +42,7 @@ def analyze_auth(email: NormalizedEmail) -> dict:
         issues.append({
             "type": "spf_fail",
             "severity": "warning",
+            "contribution": 0.15,
             "text": "SPF authentication failed — the sending server is not authorized for this domain.",
         })
     elif spf == "softfail":
@@ -49,6 +50,7 @@ def analyze_auth(email: NormalizedEmail) -> dict:
         issues.append({
             "type": "spf_softfail",
             "severity": "info",
+            "contribution": 0.06,
             "text": "SPF softfail — the sending server is not explicitly authorized.",
         })
 
@@ -57,6 +59,7 @@ def analyze_auth(email: NormalizedEmail) -> dict:
         issues.append({
             "type": "dkim_fail",
             "severity": "warning",
+            "contribution": 0.12,
             "text": "DKIM authentication failed — the message signature could not be verified.",
         })
 
@@ -65,6 +68,7 @@ def analyze_auth(email: NormalizedEmail) -> dict:
         issues.append({
             "type": "dmarc_fail",
             "severity": "warning",
+            "contribution": 0.15,
             "text": "DMARC authentication failed — domain policy rejected this message alignment.",
         })
 

@@ -9,7 +9,7 @@ services:
       PYTHONPATH: /app
       DATABASE_URL: ${DATABASE_URL:-sqlite:////app/backend/instance/phishing.db}
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
-      MODEL_VERSION: ${MODEL_VERSION:-v1.0.0}
+      MODEL_VERSION: ${MODEL_VERSION:-v1.1.0}
       # Trust Cloudflare / nginx proxy headers when deploying online
       PREFERRED_URL_SCHEME: https
     volumes:

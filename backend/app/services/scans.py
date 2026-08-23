@@ -9,6 +9,24 @@ from typing import Any
 from backend.app.database import EmailFeature, EmailScan, User, db
 
 
+def _attachment_summary(attachment: dict) -> dict:
+    """Slim attachment evidence for UI (no file bytes)."""
+    details = attachment.get("details") or []
+    return {
+        "score": int(attachment.get("score") or 0),
+        "count": int(attachment.get("count") or 0),
+        "issues": (attachment.get("issues") or [])[:8],
+        "files": [
+            {
+                "filename": d.get("filename"),
+                "size_bytes": d.get("size_bytes"),
+                "score": d.get("score"),
+            }
+            for d in details[:8]
+        ],
+    }
+
+
 def _hash_message(subject: str, sender: str, body_preview: str) -> str:
     raw = f"{subject}|{sender}|{body_preview[:500]}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
@@ -37,6 +55,16 @@ def save_scan_result(user: User | None, result: dict[str, Any], provider: str = 
         explanations_json=json.dumps({
             "simple": explanations.get("simple"),
             "findings": explanations.get("findings", [])[:15],
+            "signal_contributions": explanations.get("signal_contributions", [])[:10],
+            "why_dangerous": explanations.get("why_dangerous"),
+            "confidence_label": explanations.get("confidence_label"),
+            "counterfactual": explanations.get("counterfactual"),
+            "attachment_summary": _attachment_summary(analyses.get("attachment") or {}),
+            "auth_summary": {
+                "spf": (analyses.get("authentication") or {}).get("spf"),
+                "dkim": (analyses.get("authentication") or {}).get("dkim"),
+                "dmarc": (analyses.get("authentication") or {}).get("dmarc"),
+            },
         }),
         advice_json=json.dumps(result.get("advice") or {}),
         findings_json=json.dumps(explanations.get("findings", [])[:15]),

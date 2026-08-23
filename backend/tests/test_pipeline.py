@@ -5,8 +5,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -131,7 +129,7 @@ def test_advice_high_risk():
 
 
 def test_pipeline_phishing_sample():
-    pipeline = DetectionPipeline(model_version="v1.0.0")
+    pipeline = DetectionPipeline(model_version="v1.1.0")
     result = pipeline.scan(text=PHISHING_SAMPLE, explanation_level="all")
     assert "risk_score" in result
     assert 0 <= result["risk_score"] <= 100
@@ -142,12 +140,80 @@ def test_pipeline_phishing_sample():
     assert result["explanations"]["simple"]
     assert result["advice"]["do_not"]
     assert result["risk_score"] >= 40  # should not look safe
+    assert result["explanations"].get("signal_contributions")
+    assert result["model_version"] in {
+        "v1.1.0-text_metadata",
+        "v1.1.0-text_only",
+        "v1.1.0",
+        "v1.0.0",
+    }
 
 
 def test_pipeline_safe_sample():
-    pipeline = DetectionPipeline(model_version="v1.0.0")
+    pipeline = DetectionPipeline(model_version="v1.1.0")
     result = pipeline.scan(text=SAFE_SAMPLE, explanation_level="simple")
     assert result["risk_score"] < result.get("_unused", 100)
     # Safe sample should score lower than phishing sample
     phish = pipeline.scan(text=PHISHING_SAMPLE, explanation_level="simple")
     assert result["risk_score"] < phish["risk_score"]
+
+
+def test_brand_in_subdomain_detection():
+    from backend.app.detection.brand_utils import brand_in_hostname, lookalike_brand_domain
+
+    hit = brand_in_hostname("paypal.com.security-check.example.com")
+    assert hit is not None
+    assert hit["brand"] == "paypal"
+    assert hit["registered_domain"] == "example.com"
+
+    look = lookalike_brand_domain("paypa1-login.com")
+    assert look is not None
+    assert look["brand"] == "paypal"
+
+
+def test_reputation_suspicious_host():
+    from backend.app.analyzers.reputation import analyze_reputation
+    from backend.app.email_parser.models import EmailAddress, EmailUrl, NormalizedEmail
+
+    email = NormalizedEmail(
+        sender=EmailAddress(email="a@evil.xyz", domain="evil.xyz"),
+        urls=[EmailUrl(href="https://secure-login-verify-account9x2.top/signin")],
+    )
+    rep = analyze_reputation(email)
+    assert rep["score"] > 0
+    types = {i["type"] for i in rep["issues"]}
+    assert "suspicious_tld_reputation" in types or "phishing_keyword_host" in types
+
+
+def test_brand_impersonation_raises_floor():
+    from backend.app.email_parser.models import EmailAddress, EmailBody, EmailUrl, NormalizedEmail
+
+    email = NormalizedEmail(
+        subject="Verify your PayPal account immediately",
+        sender=EmailAddress(
+            email="help@evil.xyz",
+            domain="evil.xyz",
+            display_name="PayPal Support",
+        ),
+        body=EmailBody(
+            plain=(
+                "Dear customer, verify your account immediately or it will be suspended. "
+                "Click here to confirm your identity and enter your password."
+            )
+        ),
+        urls=[
+            EmailUrl(
+                href="https://paypal.com.security-check.evil.xyz/login",
+                displayed_text="https://paypal.com/login",
+            )
+        ],
+    )
+    pipeline = DetectionPipeline(model_version="v1.1.0")
+    analyses = pipeline.analyze_email_object(email)
+    assert any(
+        i.get("type") in ("brand_in_subdomain", "brand_in_url_host")
+        for i in analyses["url"]["issues"] + analyses["brand"]["issues"]
+    )
+    risk = fuse_risk(analyses, ml_phishing_probability=0.55)
+    assert risk.floor_applied is not None and risk.floor_applied >= 85
+    assert risk.risk_score >= 85

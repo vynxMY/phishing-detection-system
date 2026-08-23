@@ -56,4 +56,27 @@ def apply_hard_rules(
             ),
         })
 
+    brand_issues = analyses.get("brand", {}).get("issues", [])
+    url_issues = analyses.get("url", {}).get("issues", [])
+    brand_impersonation = any(
+        i.get("type") in ("brand_in_url_host", "lookalike_domain", "brand_in_subdomain", "lookalike_url_domain")
+        for i in brand_issues + url_issues
+    )
+    credential_ask = any(
+        i.get("type") == "credential_request"
+        for i in analyses.get("content", {}).get("issues", [])
+    )
+    if brand_impersonation and (credential_ask or suspicious_url):
+        floor = max(floor or 0, 85)
+        triggered.append({
+            "type": "hard_rule",
+            "rule": "brand_impersonation_combo",
+            "severity": "critical",
+            "category": "brand",
+            "text": (
+                "Brand impersonation combined with a credential request or suspicious URL — "
+                "risk floor raised to 85."
+            ),
+        })
+
     return scores, triggered, floor

@@ -18,7 +18,41 @@ from ml.config import (
     VAL_CSV,
     VAL_RATIO,
 )
-from ml.preprocessing.clean import load_merged_dataset
+from ml.preprocessing.clean import content_hash, load_merged_dataset
+
+
+def dedupe_by_text(df: pd.DataFrame) -> pd.DataFrame:
+    """Keep one row per content_hash (same definition as cleaning)."""
+    if "text" not in df.columns:
+        return df
+    before = len(df)
+    out = df.copy()
+    if "content_hash" not in out.columns:
+        out["content_hash"] = out["text"].map(content_hash)
+    out = out.drop_duplicates(subset=["content_hash"], keep="first")
+    removed = before - len(out)
+    if removed:
+        print(f"Removed {removed} duplicate texts before split")
+    return out.reset_index(drop=True)
+
+
+def _remove_cross_split_leakage(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame,
+    test_df: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Ensure identical texts never appear in more than one split (train wins)."""
+    for frame in (train_df, val_df, test_df):
+        if "content_hash" not in frame.columns:
+            frame["content_hash"] = frame["text"].map(content_hash)
+
+    train_hashes = set(train_df["content_hash"])
+    val_df = val_df[~val_df["content_hash"].isin(train_hashes)].copy()
+    test_df = test_df[~test_df["content_hash"].isin(train_hashes)].copy()
+
+    val_hashes = set(val_df["content_hash"])
+    test_df = test_df[~test_df["content_hash"].isin(val_hashes)].copy()
+    return train_df.reset_index(drop=True), val_df.reset_index(drop=True), test_df.reset_index(drop=True)
 
 
 def split_dataset(
@@ -38,6 +72,8 @@ def split_dataset(
     if df is None:
         df = load_merged_dataset()
 
+    df = dedupe_by_text(df)
+
     # First split: train vs (val + test)
     temp_ratio = val_ratio + test_ratio
     train_df, temp_df = train_test_split(
@@ -55,6 +91,8 @@ def split_dataset(
         random_state=random_state,
         stratify=temp_df["label"],
     )
+
+    train_df, val_df, test_df = _remove_cross_split_leakage(train_df, val_df, test_df)
 
     print(f"Split: train={len(train_df)}, val={len(val_df)}, test={len(test_df)}")
     for name, split_df in [("train", train_df), ("val", val_df), ("test", test_df)]:
@@ -82,14 +120,24 @@ def save_splits(
     val_df.to_csv(VAL_CSV, index=False)
     test_df.to_csv(TEST_CSV, index=False)
 
+    train_hashes = set(train_df["text"].map(content_hash))
+    val_hashes = set(val_df["text"].map(content_hash))
+    test_hashes = set(test_df["text"].map(content_hash))
+
     manifest = {
         "train_size": len(train_df),
         "val_size": len(val_df),
         "test_size": len(test_df),
-        "train_phishing_rate": round(train_df["label"].mean(), 4),
-        "val_phishing_rate": round(val_df["label"].mean(), 4),
-        "test_phishing_rate": round(test_df["label"].mean(), 4),
+        "train_phishing_rate": round(float(train_df["label"].mean()), 4),
+        "val_phishing_rate": round(float(val_df["label"].mean()), 4),
+        "test_phishing_rate": round(float(test_df["label"].mean()), 4),
         "random_seed": RANDOM_SEED,
+        "deduped_by_text": True,
+        "leakage": {
+            "train_val_overlap": len(train_hashes & val_hashes),
+            "train_test_overlap": len(train_hashes & test_hashes),
+            "val_test_overlap": len(val_hashes & test_hashes),
+        },
     }
     manifest_path = PROCESSED_DIR / "split_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2))

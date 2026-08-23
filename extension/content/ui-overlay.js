@@ -27,6 +27,19 @@
       .slice(0, 5)
       .map((f) => `<li>${escapeHtml(f.text || "")}</li>`)
       .join("");
+    const contributions = (result.explanations?.signal_contributions || [])
+      .slice(0, 4)
+      .map((c) => {
+        const delta = typeof c.contribution === "number" ? ` (+${c.contribution.toFixed(2)})` : "";
+        return `<li>${escapeHtml(c.label || "")}${delta}</li>`;
+      })
+      .join("");
+    const why = result.explanations?.why_dangerous
+      ? `<p class="pg-why"><strong>${escapeHtml(result.explanations.why_dangerous)}</strong></p>`
+      : "";
+    const conf = result.confidence_label
+      ? `<p class="pg-conf">Confidence: ${escapeHtml(result.confidence_label)}</p>`
+      : "";
 
     root.innerHTML = `
       <div class="pg-banner ${cls}">
@@ -36,11 +49,15 @@
         <button type="button" class="pg-close" aria-label="Close">×</button>
       </div>
       <aside class="pg-panel ${cls}" hidden>
+        ${why}
         <p>${escapeHtml(result.explanations?.simple || "")}</p>
+        ${conf}
         <ul>${findings}</ul>
+        ${contributions ? `<p><strong>Top signals</strong></p><ul>${contributions}</ul>` : ""}
         <div class="pg-advice">
           <strong>Do not:</strong>
           <ul>${(result.advice?.do_not || []).map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
+          ${(result.advice?.do || []).length ? `<strong>Do:</strong><ul>${(result.advice?.do || []).map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>` : ""}
         </div>
         <a class="pg-full" href="#" target="_blank" rel="noopener">View full analysis</a>
         <button type="button" class="pg-rescan">Rescan</button>

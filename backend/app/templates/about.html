@@ -19,7 +19,7 @@
     </div>
     <div class="flow-step">
       <span class="n">03</span>
-      <div><strong>Detect</strong>Logistic Regression evaluates phishing risk.</div>
+      <div><strong>Detect</strong>Logistic Regression + security rules + offline reputation.</div>
     </div>
     <div class="flow-step">
       <span class="n">04</span>
@@ -34,9 +34,9 @@
   <p><strong>Features</strong><br>TF-IDF, URL characteristics, and metadata.</p>
   {% if lab %}
   <p><strong>Held-out test-set metrics ({{ lab.version }})</strong><br>
-    Accuracy {{ lab.accuracy }}% · F1 {{ lab.f1 }}% · Precision {{ lab.precision }}% · Recall {{ lab.recall }}%
+    F1 {{ lab.f1 }}% · Precision {{ lab.precision }}% · Recall {{ lab.recall }}% · Accuracy {{ lab.accuracy }}%
   </p>
-  <p class="muted">These numbers come from the trained model’s experimental test set. They are not live traffic performance.</p>
+  <p class="muted">Primary evaluation story for phishing: Precision, Recall, and F1 on an unseen test set — not accuracy alone. These numbers come from training experiments, not live traffic.</p>
   {% endif %}
   <p class="muted" style="margin-bottom:0;">
     PhishGuard is an academic prototype. Detection results should not be treated as a guarantee that a website is safe.

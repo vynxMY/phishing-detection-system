@@ -5,10 +5,12 @@ from __future__ import annotations
 import json
 import secrets
 
-from flask import Blueprint, flash, g, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, Response, flash, g, jsonify, redirect, render_template, request, url_for
 
 from backend.app.auth.helpers import admin_required, login_required
 from backend.app.database import EmailScan, Feedback, UserSettings, db
+import csv
+import io
 
 feedback_bp = Blueprint("feedback", __name__)
 
@@ -100,3 +102,23 @@ def review_feedback(feedback_id: int):
     db.session.commit()
     flash("Feedback marked as approved." if fb.approved else "Feedback rejected.", "success")
     return redirect(url_for("feedback.admin_feedback"))
+
+
+@feedback_bp.route("/admin/feedback/export.csv")
+@admin_required
+def export_feedback_csv():
+    """Download approved feedback as CSV (label audit — no raw bodies)."""
+    from backend.app.services.feedback_export import FIELDNAMES, iter_approved_feedback_rows
+
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=FIELDNAMES)
+    writer.writeheader()
+    for row in iter_approved_feedback_rows():
+        writer.writerow(row)
+    return Response(
+        buf.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=phishguard_feedback_export.csv",
+        },
+    )

@@ -6,7 +6,7 @@
   <style>
     body { font-family: "Segoe UI", system-ui, sans-serif; max-width: 520px; margin: 2rem auto; padding: 0 1rem; background: #0b1215; color: #e8eef1; }
     label { display: block; margin: 1rem 0 0.35rem; color: #8fa3ad; }
-    input[type=text], input[type=url] { width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #2a3b44; background: #121c21; color: #e8eef1; }
+    input[type=text], input[type=url], select { width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid #2a3b44; background: #121c21; color: #e8eef1; box-sizing: border-box; }
     .row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.85rem; }
     button { margin-top: 1.25rem; padding: 0.65rem 1rem; border: 0; border-radius: 6px; background: #2ec4b6; color: #062421; font-weight: 600; cursor: pointer; }
     #msg { margin-top: 0.75rem; color: #3dba7c; }
@@ -23,8 +23,15 @@
   <label>API token</label>
   <input id="apiToken" type="text" placeholder="Paste token">
 
+  <label>Explanation detail</label>
+  <select id="explanationLevel">
+    <option value="simple">Simple</option>
+    <option value="detailed">Detailed</option>
+  </select>
+
   <div class="row"><input id="autoScan" type="checkbox"><label for="autoScan" style="margin:0;color:#e8eef1;">Automatic scanning</label></div>
   <div class="row"><input id="showWarnings" type="checkbox"><label for="showWarnings" style="margin:0;color:#e8eef1;">Show warnings</label></div>
+  <div class="row"><input id="scanAttachments" type="checkbox"><label for="scanAttachments" style="margin:0;color:#e8eef1;">Scan attachments (when present)</label></div>
 
   <button id="save">Save</button>
   <button id="test" type="button" style="background:#1b3a42;color:#e8eef1;margin-left:0.5rem;">Test connection</button>

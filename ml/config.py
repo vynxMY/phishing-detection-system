@@ -52,7 +52,7 @@ LR_CLASS_WEIGHT = "balanced"
 LR_SOLVER = "liblinear"  # fast and reliable for sparse text features
 
 # Model versioning
-DEFAULT_MODEL_VERSION = "v1.0.0"
+DEFAULT_MODEL_VERSION = "v1.1.0"
 
 # Dataset sources
 LINGSPAM_URL = "http://www.aueb.gr/users/ion/data/lingspam_public.tar.gz"

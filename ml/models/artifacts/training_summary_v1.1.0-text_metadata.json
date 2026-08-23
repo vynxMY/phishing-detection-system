@@ -1,0 +1,65 @@
+{
+  "model_version": "v1.1.0-text_metadata",
+  "algorithm": "logistic_regression",
+  "trained_at": "2026-08-23T08:49:31.165970+00:00",
+  "feature_shape": [
+    9975,
+    10042
+  ],
+  "best_params": {
+    "C": 100.0
+  },
+  "validation_metrics": {
+    "accuracy": 0.9883,
+    "precision": 0.985,
+    "recall": 0.9915,
+    "f1": 0.9882,
+    "false_positive_rate": 0.0148,
+    "false_negative_rate": 0.0085,
+    "confusion_matrix": {
+      "true_negative": 1063,
+      "false_positive": 16,
+      "false_negative": 9,
+      "true_positive": 1050
+    },
+    "support": {
+      "legitimate": 1079,
+      "phishing": 1059
+    },
+    "roc_auc": 0.999,
+    "pr_auc": 0.999,
+    "calibration": {
+      "mean_predicted": 0.4974,
+      "mean_actual": 0.4672
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.986,
+    "precision": 0.9759,
+    "recall": 0.9962,
+    "f1": 0.986,
+    "false_positive_rate": 0.0241,
+    "false_negative_rate": 0.0038,
+    "confusion_matrix": {
+      "true_negative": 1054,
+      "false_positive": 26,
+      "false_negative": 4,
+      "true_positive": 1054
+    },
+    "support": {
+      "legitimate": 1080,
+      "phishing": 1058
+    },
+    "roc_auc": 0.9979,
+    "pr_auc": 0.9972,
+    "calibration": {
+      "mean_predicted": 0.5016,
+      "mean_actual": 0.4286
+    }
+  },
+  "artifacts": {
+    "model": "logistic_regression_v1.1.0-text_metadata.joblib",
+    "feature_extractor": "feature_extractor_v1.1.0-text_metadata.joblib"
+  },
+  "note": "Held-out metrics from enhanced training. Primary story: Precision / Recall / F1 (not accuracy alone)."
+}

@@ -1,0 +1,17 @@
+From: billing@invoices-secure.xyz
+Subject: Invoice attached — please review
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUND"
+
+--BOUND
+Content-Type: text/plain
+
+Please review the attached invoice and confirm payment.
+
+--BOUND
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="invoice.pdf.exe"
+Content-Transfer-Encoding: base64
+
+AQID
+--BOUND--

@@ -79,7 +79,11 @@ def extension_scan():
 
     level = settings.explanation_level or "simple"
     pipeline = get_pipeline()
-    result = pipeline.scan(text=text, explanation_level="all" if level == "detailed" else level)
+    result = pipeline.scan(
+        text=text,
+        explanation_level="all" if level == "detailed" else level,
+        scan_attachments=bool(settings.scan_attachments),
+    )
     scan_row = save_scan_result(g.api_user, result, provider="extension")
 
     return jsonify({
@@ -88,10 +92,13 @@ def extension_scan():
         "risk_score": result["risk_score"],
         "classification": result["classification"],
         "confidence": result["confidence"],
+        "confidence_label": result["explanations"].get("confidence_label"),
         "breakdown": result["breakdown"],
         "explanations": {
             "simple": result["explanations"].get("simple"),
             "findings": result["explanations"].get("findings", [])[:8],
+            "why_dangerous": result["explanations"].get("why_dangerous"),
+            "signal_contributions": result["explanations"].get("signal_contributions", [])[:6],
         },
         "advice": result.get("advice"),
         "model_version": result.get("model_version"),
@@ -115,9 +122,11 @@ def extension_scan_url():
         "risk_score": result["risk_score"],
         "classification": result["classification"],
         "confidence": result["confidence"],
+        "confidence_label": (result.get("explanations") or {}).get("confidence_label"),
         "explanations": {
             "simple": result["explanations"].get("simple"),
             "findings": findings,
+            "why_dangerous": (result.get("explanations") or {}).get("why_dangerous"),
         },
         "advice": result.get("advice"),
         "model_version": result.get("model_version"),

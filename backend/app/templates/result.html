@@ -20,6 +20,7 @@
   <p class="muted" style="margin:0.35rem 0 0;font-size:0.9rem;">
     {{ scan.subject }}
     {% if scan.provider != 'url' and scan.sender %} · From {{ scan.sender }}{% endif %}
+    {% if scan.confidence_label %} · Confidence: {{ scan.confidence_label }}{% endif %}
   </p>
 </section>
 
@@ -45,18 +46,35 @@ URL: {{ scan.subject }}
 
   <section class="panel">
     <h2>Why we flagged it</h2>
+    {% if scan.explanations.why_dangerous %}
+    <p style="margin-top:-0.25rem;font-weight:600;">{{ scan.explanations.why_dangerous }}</p>
+    {% endif %}
     {% if scan.findings %}
-    <p class="muted" style="margin-top:-0.35rem;">{{ scan.findings|length }} indicator{{ 's' if scan.findings|length != 1 }} worth attention.</p>
+    <p class="muted" style="margin-top:-0.15rem;">{{ scan.findings|length }} indicator{{ 's' if scan.findings|length != 1 }} worth attention.</p>
     <div class="findings">
       {% for f in scan.findings[:8] %}
       <div class="evidence-card {{ f.severity or 'info' }}">
-        <strong>{{ (f.category or 'signal')|replace('_',' ')|capitalize }}</strong>
+        <strong>{{ (f.category or 'signal')|replace('_',' ')|capitalize }}{% if f.contribution %} · +{{ '%.2f'|format(f.contribution) }}{% endif %}</strong>
         <div>{{ f.text }}</div>
       </div>
       {% endfor %}
     </div>
     {% else %}
     <p class="muted">No strong warning signals were recorded. Still follow the advice below — absence of flags is not a guarantee.</p>
+    {% endif %}
+    {% set att = scan.explanations.attachment_summary %}
+    {% if att and att.count %}
+    <h3 style="margin-top:1.25rem;">Attachments</h3>
+    <p class="muted" style="margin-top:-0.25rem;">{{ att.count }} file{{ 's' if att.count != 1 }} analysed (static checks only — nothing was executed).</p>
+    <ul class="advice-list">
+      {% for file in att.files %}
+      <li>{{ file.filename }}{% if file.score %} · risk {{ file.score }}/100{% endif %}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if scan.explanations.counterfactual and scan.explanations.counterfactual.summary %}
+    <h3 style="margin-top:1.25rem;">What would lower the risk?</h3>
+    <p class="muted">{{ scan.explanations.counterfactual.summary }}</p>
     {% endif %}
   </section>
 </div>

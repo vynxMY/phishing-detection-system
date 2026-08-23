@@ -1,0 +1,65 @@
+{
+  "model_version": "v1.1.0-text_only",
+  "algorithm": "logistic_regression",
+  "trained_at": "2026-08-23T08:49:31.165970+00:00",
+  "feature_shape": [
+    9975,
+    10010
+  ],
+  "best_params": {
+    "C": 100.0
+  },
+  "validation_metrics": {
+    "accuracy": 0.992,
+    "precision": 0.9924,
+    "recall": 0.9915,
+    "f1": 0.992,
+    "false_positive_rate": 0.0074,
+    "false_negative_rate": 0.0085,
+    "confusion_matrix": {
+      "true_negative": 1071,
+      "false_positive": 8,
+      "false_negative": 9,
+      "true_positive": 1050
+    },
+    "support": {
+      "legitimate": 1079,
+      "phishing": 1059
+    },
+    "roc_auc": 0.9993,
+    "pr_auc": 0.9994,
+    "calibration": {
+      "mean_predicted": 0.5022,
+      "mean_actual": 0.5003
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.9897,
+    "precision": 0.9841,
+    "recall": 0.9953,
+    "f1": 0.9897,
+    "false_positive_rate": 0.0157,
+    "false_negative_rate": 0.0047,
+    "confusion_matrix": {
+      "true_negative": 1063,
+      "false_positive": 17,
+      "false_negative": 5,
+      "true_positive": 1053
+    },
+    "support": {
+      "legitimate": 1080,
+      "phishing": 1058
+    },
+    "roc_auc": 0.9987,
+    "pr_auc": 0.9984,
+    "calibration": {
+      "mean_predicted": 0.5028,
+      "mean_actual": 0.4671
+    }
+  },
+  "artifacts": {
+    "model": "logistic_regression_v1.1.0-text_only.joblib",
+    "feature_extractor": "feature_extractor_v1.1.0-text_only.joblib"
+  },
+  "note": "Held-out metrics from enhanced training. Primary story: Precision / Recall / F1 (not accuracy alone)."
+}

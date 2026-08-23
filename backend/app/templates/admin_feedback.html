@@ -2,7 +2,10 @@
 {% block title %}Feedback Review{% endblock %}
 {% block content %}
 <h1 class="page-title">Feedback review</h1>
-<p class="muted" style="margin-top:-0.5rem;">Approve feedback before it can be exported for offline retraining.</p>
+<p class="muted" style="margin-top:-0.5rem;">Approve feedback before it can be exported for offline review. Raw email bodies are never exported.</p>
+<p style="margin:0 0 1.25rem;">
+  <a class="btn btn-primary" href="{{ url_for('feedback.export_feedback_csv') }}">Export approved CSV</a>
+</p>
 
 <section class="panel" style="margin-bottom:1.25rem;">
   <h2>Pending</h2>

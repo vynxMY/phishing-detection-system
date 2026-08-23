@@ -32,7 +32,7 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
-    MODEL_VERSION = os.environ.get("MODEL_VERSION", "v1.0.0")
+    MODEL_VERSION = os.environ.get("MODEL_VERSION", "v1.1.0")
     PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME", "http")
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
