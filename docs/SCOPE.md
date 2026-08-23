@@ -6,7 +6,8 @@
 
 **Project type:** System Development (not Research)  
 **Aligned to:** Corrected PSM proposal (authoritative from 2026-08-22)  
-**Full spec:** [MASTER_TECHNICAL_SPECIFICATION.md](MASTER_TECHNICAL_SPECIFICATION.md)
+**Full spec:** [MASTER_TECHNICAL_SPECIFICATION.md](MASTER_TECHNICAL_SPECIFICATION.md)  
+**Change history:** [CHANGELOG.md](CHANGELOG.md)
 
 ---
 

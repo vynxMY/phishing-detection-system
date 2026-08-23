@@ -2,7 +2,7 @@
 
 A **System Development** PSM: Logistic Regression classifies phishing vs legitimate email, then explains suspicious URLs, sender mismatches, and risky language so users become more aware.
 
-**Authoritative scope:** [docs/SCOPE.md](docs/SCOPE.md) · **Full spec:** [docs/MASTER_TECHNICAL_SPECIFICATION.md](docs/MASTER_TECHNICAL_SPECIFICATION.md)
+**Authoritative scope:** [docs/SCOPE.md](docs/SCOPE.md) · **Full spec:** [docs/MASTER_TECHNICAL_SPECIFICATION.md](docs/MASTER_TECHNICAL_SPECIFICATION.md) · **Change history:** [docs/CHANGELOG.md](docs/CHANGELOG.md)
 
 ## What is in scope
 
@@ -20,12 +20,14 @@ A **System Development** PSM: Logistic Regression classifies phishing vs legitim
 
 | Area | Result |
 |---|---|
-| Experiment 1 (held-out, LR v1.0.0 TF-IDF) | See `ml/evaluation/reports/` |
-| Experiment 2 | Text-only vs text+metadata LR comparison (`python -m ml.training.train enhanced`) |
-| Detection | Parse → features → **Logistic Regression** → explain + advice |
-| Web app | Flask + auth, scanner, history, admin |
-| Extension | Chrome/Edge MV3 — **PSM Extension**, not core |
-| Deployment | Docker Compose + Nginx |
+| Experiment 1 (held-out, LR v1.0.0 TF-IDF) | Metrics in `ml/models/artifacts/training_summary_v1.0.0.json` |
+| Experiment 2 (improved LR) | Prefer runtime `v1.1.0-text_metadata`; summaries under `ml/models/artifacts/` |
+| Detection | Parse → analyzers → **LR** → hybrid rules → explain + advice (see [CHANGELOG](docs/CHANGELOG.md)) |
+| Web app | Flask + dashboard UX, email-first analyse, decision-led results |
+| Extension | Chrome/Edge MV3 — **PSM Extension**, same API / model on server |
+| Deployment | Docker Compose + Nginx / Render |
+
+Full dated history of UX + detection phases: **[docs/CHANGELOG.md](docs/CHANGELOG.md)**.
 
 ## Quick Start (local)
 
@@ -83,7 +85,7 @@ PYTHONPATH=. python -m pytest backend/tests/ -q
 PYTHONPATH=. python scripts/score_user_eval.py
 ```
 
-Docs: [SCOPE.md](docs/SCOPE.md) · [STRUCTURE.md](docs/STRUCTURE.md) · [API.md](docs/API.md) · [SECURITY_TESTING.md](docs/SECURITY_TESTING.md) · [USER_EVALUATION.md](docs/USER_EVALUATION.md)
+Docs: [SCOPE.md](docs/SCOPE.md) · [CHANGELOG.md](docs/CHANGELOG.md) · [STRUCTURE.md](docs/STRUCTURE.md) · [API.md](docs/API.md) · [SECURITY_TESTING.md](docs/SECURITY_TESTING.md) · [USER_EVALUATION.md](docs/USER_EVALUATION.md)
 
 ## Extension (PSM Extension)
 

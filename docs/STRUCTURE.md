@@ -2,7 +2,8 @@
 
 Canonical layout for **Explainable Web-Based Phishing Email Detection for User Awareness Using Logistic Regression**.
 
-See [SCOPE.md](SCOPE.md) for Core vs Extension vs Startup.
+See [SCOPE.md](SCOPE.md) for Core vs Extension vs Startup.  
+See [CHANGELOG.md](CHANGELOG.md) for dated implementation history (UX + detection phases).
 
 ```text
 phishing-detection-system/
