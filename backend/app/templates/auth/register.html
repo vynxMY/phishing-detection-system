@@ -1,9 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Register{% endblock %}
+{% block title %}Create account{% endblock %}
 {% block content %}
 <div class="auth-shell panel">
-  <h1 class="page-title">Create account</h1>
-  <form class="form" method="post">
+  <div class="auth-brand">
+    <a class="brand" href="{{ url_for('main.landing') }}">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z"/></svg>
+      </span>
+      <span class="brand-name">PhishGuard</span>
+    </a>
+  </div>
+  <h1 class="page-title" style="text-align:center;">Create your account</h1>
+  <form class="form" method="post" style="max-width:none;">
     {% include "_csrf.html" %}
     <label>Email
       <input type="email" name="email" required autocomplete="email">
@@ -14,8 +22,10 @@
     <label>Confirm password
       <input type="password" name="confirm" required minlength="8" autocomplete="new-password">
     </label>
-    <button class="btn btn-primary" type="submit">Register</button>
+    <button class="btn btn-primary btn-block" type="submit">Get started</button>
   </form>
-  <p class="muted" style="margin-top:1rem;">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+  <p class="muted" style="margin-top:1.25rem;text-align:center;">
+    Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+  </p>
 </div>
 {% endblock %}

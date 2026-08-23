@@ -1,46 +1,87 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<section class="hero" id="check">
+<section class="hero">
+  <div class="hero-brand">PhishGuard</div>
   <h1>Check before you click.</h1>
   <p class="lede">
-    Got a suspicious link or email? PhishGuard checks it for common signs of phishing and explains what it finds.
+    Understand suspicious emails before they become a problem.
   </p>
-  <div class="mode-tabs">
-    <a class="active" href="{{ url_for('auth.login', next=url_for('main.scan_url')) }}">URL</a>
-    <a href="{{ url_for('auth.login', next=url_for('main.scan')) }}">Email</a>
+  <div class="cta-row" style="justify-content:center;">
+    <a class="btn btn-primary" href="{{ url_for('auth.login', next=url_for('main.scan')) }}">Analyse an email</a>
+    <a class="btn btn-ghost" href="{{ url_for('auth.login', next=url_for('main.scan_url')) }}">Check a URL</a>
   </div>
-  <form class="hero-search" method="get" action="{{ url_for('main.scan_url') }}">
-    <label class="muted">Paste the link you're unsure about
-      <input type="url" name="url" placeholder="https://example.com/login" aria-label="URL to check">
-    </label>
-    <button class="btn btn-primary" type="submit" style="margin-top:0.75rem;">Check this link</button>
-  </form>
-  <p class="privacy-note">Sign in to run a check. Not just a verdict — an explanation, then a clear next step.</p>
+  <p class="muted" style="margin:0;font-size:0.9rem;">
+    Explainable phishing detection · Powered by Logistic Regression
+  </p>
+  <ul class="check-list" style="justify-items:start;max-width:22rem;margin-inline:auto;">
+    <li>Email analysis</li>
+    <li>URL analysis</li>
+    <li>Sender analysis</li>
+    <li>Human-readable explanations</li>
+    <li>Actionable security advice</li>
+  </ul>
 </section>
 
-<section class="feature-strip">
-  <article>
-    <h3>Easy to understand</h3>
-    <p>A plain-language result first. Model probability stays in the background.</p>
-  </article>
-  <article>
-    <h3>Explains the result</h3>
-    <p>See the URL, sender, and language signals that influenced the decision.</p>
-  </article>
-  <article>
-    <h3>Gives practical advice</h3>
-    <p>What to do next — not only a classification from Logistic Regression.</p>
-  </article>
+<section class="landing-section">
+  <h2 style="text-align:center;">How PhishGuard helps you</h2>
+  <div class="help-strip">
+    <article>
+      <h3>Detect</h3>
+      <p>Paste a suspicious email or link. The system checks text, URLs, and metadata for phishing patterns.</p>
+    </article>
+    <article>
+      <h3>Understand</h3>
+      <p>See why it was flagged — suspicious URLs, sender mismatch, urgency, and other signals in plain language.</p>
+    </article>
+    <article>
+      <h3>Act</h3>
+      <p>Get clear next steps: what not to click, how to verify the sender, and when to report the message.</p>
+    </article>
+  </div>
 </section>
 
-<section id="how" class="pipeline">
-  <strong>How a check works</strong>
-  <div class="how-grid">
-    <div class="how-step"><span class="n">1</span><div>You paste a URL or email.</div></div>
-    <div class="how-step"><span class="n">2</span><div>The engine extracts TF-IDF, URL, and metadata features.</div></div>
-    <div class="how-step"><span class="n">3</span><div>Logistic Regression predicts the risk.</div></div>
-    <div class="how-step"><span class="n">4</span><div>You get a verdict, why it was flagged, and what to do.</div></div>
+<section class="landing-section" id="how">
+  <h2>How the detection works</h2>
+  <div class="flow-steps">
+    <div class="flow-step">
+      <span class="n">01</span>
+      <div>
+        <strong>Submit</strong>
+        Give PhishGuard the email or URL.
+      </div>
+    </div>
+    <div class="flow-step">
+      <span class="n">02</span>
+      <div>
+        <strong>Analyse</strong>
+        Extract TF-IDF text features, URL characteristics, and metadata.
+      </div>
+    </div>
+    <div class="flow-step">
+      <span class="n">03</span>
+      <div>
+        <strong>Detect</strong>
+        Logistic Regression evaluates phishing risk.
+      </div>
+    </div>
+    <div class="flow-step">
+      <span class="n">04</span>
+      <div>
+        <strong>Understand</strong>
+        See why it was flagged and what you should do.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="landing-section">
+  <div class="panel" style="text-align:center;">
+    <h2 style="margin-bottom:0.4rem;">Learn to spot phishing</h2>
+    <p class="muted" style="margin:0 auto 1rem;max-width:32rem;">
+      Short lessons on fake logins, suspicious domains, and urgency tricks — so you stay safer even without a scan.
+    </p>
+    <a class="btn btn-ghost" href="{{ url_for('main.learn') }}">Open awareness centre</a>
   </div>
 </section>
 {% endblock %}

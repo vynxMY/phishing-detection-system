@@ -30,7 +30,7 @@ def logout_user() -> None:
 
 def safe_next_url(value: str | None, fallback: str | None = None) -> str:
     """Allow only same-origin relative paths (no open redirects)."""
-    fallback = fallback or url_for("main.scan_url")
+    fallback = fallback or url_for("main.dashboard")
     if not value:
         return fallback
     if value.startswith("/") and not value.startswith("//"):

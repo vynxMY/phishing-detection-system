@@ -2,82 +2,128 @@
 {% block title %}{{ scan.verdict.verdict }}{% endblock %}
 {% block content %}
 {% set v = scan.verdict %}
+<p class="muted" style="margin:0 0 0.75rem;">
+  <a href="{{ url_for('main.dashboard') }}">← Back to dashboard</a>
+</p>
+<p class="muted" style="margin:0 0 0.35rem;font-size:0.85rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Analysis result</p>
+
 <section class="panel verdict-card {{ v.tone }}">
-  <div class="verdict-kicker">{{ v.verdict }}</div>
+  <div class="verdict-kicker">{{ v.risk_label }}</div>
   <h1>{{ v.headline }}</h1>
   <p>{{ v.lead }}</p>
-  <p><strong>Risk level</strong> · {{ v.risk_label }}</p>
+  <div class="risk-meter">
+    <span class="big">{{ scan.risk_score }}</span>
+    <span class="denom">/ 100</span>
+  </div>
   <div class="score-track" aria-hidden="true"><span style="width: {{ scan.risk_score }}%;"></span></div>
-  <p class="muted" style="margin:0.4rem 0 0;">{{ scan.risk_score }}% model probability
-    {% if scan.subject %} · {{ scan.subject }}{% endif %}
+  <p style="margin:0.6rem 0 0;font-weight:600;">{{ v.recommendation }}</p>
+  <p class="muted" style="margin:0.35rem 0 0;font-size:0.9rem;">
+    {{ scan.subject }}
+    {% if scan.provider != 'url' and scan.sender %} · From {{ scan.sender }}{% endif %}
   </p>
 </section>
 
-<div class="grid-2" style="margin-top:1rem;">
+<div class="split-result">
   <section class="panel">
-    <h2>Why did we flag this?</h2>
+    <h2>{% if scan.provider == 'url' %}What you submitted{% else %}Email{% endif %}</h2>
+    <div class="email-preview">
+{%- if scan.provider != 'url' -%}
+From: {{ scan.sender }}
+Subject: {{ scan.subject }}
+
+{{ scan.explanations.simple or 'Full message body is not stored. Use the findings on the right for the signals that mattered.' }}
+{%- else -%}
+URL: {{ scan.subject }}
+
+{{ scan.explanations.simple or 'This link was analysed through the email detection pipeline.' }}
+{%- endif -%}
+    </div>
+    <p class="muted" style="font-size:0.85rem;margin:0.75rem 0 0;">
+      Raw bodies are not kept by default. The summary and findings below are what PhishGuard saved from this analysis.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Why we flagged it</h2>
     {% if scan.findings %}
-    <p class="muted">We found {{ scan.findings|length }} thing{{ 's' if scan.findings|length != 1 }} worth paying attention to.</p>
-    <ul class="findings">
+    <p class="muted" style="margin-top:-0.35rem;">{{ scan.findings|length }} indicator{{ 's' if scan.findings|length != 1 }} worth attention.</p>
+    <div class="findings">
       {% for f in scan.findings[:8] %}
-      <li class="finding {{ f.severity }}">
+      <div class="evidence-card {{ f.severity or 'info' }}">
         <strong>{{ (f.category or 'signal')|replace('_',' ')|capitalize }}</strong>
         <div>{{ f.text }}</div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="muted">No strong warning signals were recorded. Read the recommendation anyway — absence of flags is not a guarantee of safety.</p>
-    {% endif %}
-  </section>
-
-  <section class="panel">
-    <h2>What should you do?</h2>
-    <p>{{ v.recommendation }}</p>
-    <ol class="numbered-advice">
-      {% if scan.advice.get('do_not') %}
-        {% for item in scan.advice.get('do_not', [])[:4] %}
-        <li>{{ item }}</li>
-        {% endfor %}
-      {% else %}
-        <li>Don't enter your password or payment details if you are unsure.</li>
-        <li>Don't download anything from an unexpected link.</li>
-        <li>If the message claims to be from a company, visit the company's official website directly.</li>
-        <li>If you're still unsure, contact the sender through a trusted channel.</li>
-      {% endif %}
-    </ol>
-    <div class="cta-row" style="margin-top:1rem;">
-      <a class="btn btn-primary" href="{{ url_for('main.scan_url') }}">Check another link</a>
-      <a class="btn btn-ghost" href="{{ url_for('main.scan_report', scan_id=scan.id) }}">Save / print report</a>
-    </div>
-  </section>
-</div>
-
-<section class="panel" style="margin-top:1rem;">
-  <details class="tech-details">
-    <summary>Show technical details</summary>
-    <p><strong>Model</strong><br>Logistic Regression{% if scan.model_version %} {{ scan.model_version }}{% endif %}</p>
-    <p><strong>Feature extraction</strong><br>TF-IDF + URL features + metadata</p>
-    <p><strong>Prediction</strong><br>{{ scan.classification.replace('_', ' ') }}</p>
-    <p><strong>Model probability</strong><br>{{ scan.risk_score }}%</p>
-    {% if scan.provider == 'url' %}
-    <p class="muted">This URL was wrapped as a short message so the email detection engine could extract URL and text features.</p>
-    {% endif %}
-    <h3>Feature contributions</h3>
-    <p class="muted">These are analyser signal scores stored with the scan — not SHAP values.</p>
-    {% if contributions %}
-    <div class="breakdown">
-      {% for c in contributions %}
-      <div class="breakdown-row">
-        <span>{{ c.label }}</span>
-        <div class="bar {% if c.points >= 20 %}danger{% elif c.points >= 10 %}warn{% endif %}"><span style="width: {{ c.pct }}%;"></span></div>
-        <span>{{ c.points }}</span>
       </div>
       {% endfor %}
     </div>
     {% else %}
-    <p class="muted">No elevated analysis signals were stored for this scan.</p>
+    <p class="muted">No strong warning signals were recorded. Still follow the advice below — absence of flags is not a guarantee.</p>
     {% endif %}
+  </section>
+</div>
+
+<section class="panel" style="margin-top:1rem;">
+  <h2>What should you do?</h2>
+  <ol class="numbered-advice">
+    {% if scan.advice.get('do_not') %}
+      {% for item in scan.advice.get('do_not', [])[:5] %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    {% else %}
+      <li>Don't click any links if you're unsure.</li>
+      <li>Don't download attachments from unexpected messages.</li>
+      <li>Don't reply with passwords or personal information.</li>
+      <li>Verify the sender through a trusted channel.</li>
+      <li>Report the message as phishing if it looks fraudulent.</li>
+    {% endif %}
+  </ol>
+  {% if scan.advice.get('do') %}
+  <p style="margin:1rem 0 0.35rem;"><strong>Also consider</strong></p>
+  <ul class="advice-list do">
+    {% for item in scan.advice.get('do', [])[:4] %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <div class="cta-row" style="margin-top:1.1rem;">
+    <a class="btn btn-primary" href="{{ url_for('main.scan') }}">Analyse another email</a>
+    <a class="btn btn-ghost" href="{{ url_for('main.scan_report', scan_id=scan.id) }}">Open report</a>
+    <a class="btn btn-ghost" href="{{ url_for('main.learn') }}">Learn why this was suspicious</a>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:1rem;">
+  <details class="tech-details">
+    <summary>See the evidence (technical explanation)</summary>
+    <div class="grid-2">
+      <div>
+        <p><strong>Model</strong><br>Logistic Regression{% if scan.model_version %} {{ scan.model_version }}{% endif %}</p>
+        <p><strong>Features analysed</strong></p>
+        <ul>
+          <li>TF-IDF</li>
+          <li>URL features</li>
+          <li>Metadata</li>
+        </ul>
+        <p><strong>Prediction</strong><br>{{ scan.classification.replace('_', ' ') }}</p>
+        <p><strong>Risk score</strong><br>{{ scan.risk_score }} / 100</p>
+      </div>
+      <div>
+        <p><strong>Top contributing signals</strong></p>
+        <p class="muted" style="margin-top:-0.5rem;font-size:0.88rem;">Analyser signal scores — not SHAP values.</p>
+        {% if contributions %}
+        <div class="breakdown">
+          {% for c in contributions %}
+          <div class="breakdown-row">
+            <span>{{ c.label }}</span>
+            <div class="bar {% if c.points >= 20 %}danger{% elif c.points >= 10 %}warn{% endif %}"><span style="width: {{ c.pct }}%;"></span></div>
+            <span>{% if c.points >= 20 %}High{% elif c.points >= 10 %}Medium{% else %}Low{% endif %}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="muted">No elevated analysis signals were stored.</p>
+        {% endif %}
+      </div>
+    </div>
   </details>
 </section>
 
@@ -87,7 +133,7 @@
     {% include "_csrf.html" %}
     <input type="hidden" name="scan_id" value="{{ scan.id }}">
     <label>Feedback
-      <select name="is_correct" id="is_correct" required>
+      <select name="is_correct" required>
         <option value="">Select…</option>
         <option value="yes">Yes — this matches what I expected</option>
         <option value="no">No — this looks wrong</option>
@@ -110,8 +156,5 @@
     </fieldset>
     <button class="btn btn-primary" type="submit">Submit feedback</button>
   </form>
-  <p class="muted" style="font-size:0.88rem;margin-top:0.75rem;">
-    Feedback is reviewed before it can enter any training dataset. The live model is never retrained instantly.
-  </p>
 </section>
 {% endblock %}

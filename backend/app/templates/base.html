@@ -21,11 +21,42 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
+{% if current_user %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('main.dashboard') }}">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z"/></svg>
+      </span>
+      <span>
+        <span class="brand-name">PhishGuard</span>
+        <span class="brand-tag">Detection &amp; explanation</span>
+      </span>
+    </a>
+    <a class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a class="nav-item {% if request.endpoint in ('main.scan', 'main.scan_url') %}active{% endif %}" href="{{ url_for('main.scan') }}">Analyse email</a>
+    <a class="nav-item {% if request.endpoint in ('main.history', 'main.scan_result') %}active{% endif %}" href="{{ url_for('main.history') }}">Scan history</a>
+    <a class="nav-item {% if request.endpoint == 'main.learn' %}active{% endif %}" href="{{ url_for('main.learn') }}">Awareness centre</a>
+    <a class="nav-item {% if request.endpoint in ('main.reports', 'main.scan_report') %}active{% endif %}" href="{{ url_for('main.reports') }}">Reports</a>
+    <div class="nav-section">Protection</div>
+    <a class="nav-item {% if request.endpoint == 'gmail.integrations' %}active{% endif %}" href="{{ url_for('gmail.integrations') }}">Gmail protection</a>
+    <a class="nav-item {% if request.endpoint == 'main.profile' %}active{% endif %}" href="{{ url_for('main.profile') }}">Settings</a>
+    {% if current_user.is_admin %}
+    <div class="nav-section">Admin</div>
+    <a class="nav-item {% if request.endpoint == 'main.admin' %}active{% endif %}" href="{{ url_for('main.admin') }}">Admin dashboard</a>
+    <a class="nav-item {% if request.endpoint == 'feedback.admin_feedback' %}active{% endif %}" href="{{ url_for('feedback.admin_feedback') }}">Feedback</a>
+    {% endif %}
+    <div class="spacer"></div>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme" style="margin:0.35rem 0.4rem;">Theme</button>
+    <a class="nav-item" href="{{ url_for('auth.logout') }}">Sign out</a>
+  </aside>
+  <div class="app-content">
+{% else %}
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="{{ url_for('main.scan_url') if current_user else url_for('main.landing') }}">
+      <a class="brand" href="{{ url_for('main.landing') }}">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z"/></svg>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z"/></svg>
         </span>
         <span>
           <span class="brand-name">PhishGuard</span>
@@ -34,68 +65,55 @@
       </a>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open menu">Menu</button>
       <nav class="nav-links" id="site-nav">
-        {% if current_user %}
-          <a class="{% if request.endpoint in ('main.scan', 'main.scan_url') %}active{% endif %}" href="{{ url_for('main.scan_url') }}">Check</a>
-          <a class="{% if request.endpoint in ('main.history', 'main.scan_result') %}active{% endif %}" href="{{ url_for('main.history') }}">History</a>
-          <a class="{% if request.endpoint == 'main.learn' %}active{% endif %}" href="{{ url_for('main.learn') }}">Learn</a>
-          <a class="{% if request.endpoint in ('main.reports', 'main.scan_report') %}active{% endif %}" href="{{ url_for('main.reports') }}">Reports</a>
-          <div class="account-menu">
-            <button type="button" data-account-toggle>Account</button>
-            <div class="account-dropdown">
-              <a href="{{ url_for('main.dashboard') }}">Activity</a>
-              <a href="{{ url_for('main.profile') }}">Profile</a>
-              <a href="{{ url_for('gmail.integrations') }}">Extension</a>
-              {% if current_user.is_admin %}
-              <a href="{{ url_for('main.admin') }}">Admin</a>
-              <a href="{{ url_for('feedback.admin_feedback') }}">Feedback</a>
-              {% endif %}
-              <a href="{{ url_for('auth.logout') }}">Sign out</a>
-            </div>
-          </div>
-        {% else %}
-          <a href="{{ url_for('main.landing') }}#check">Check</a>
-          <a href="{{ url_for('main.learn') }}">Learn</a>
-          <a href="{{ url_for('main.about') }}">About</a>
-          <a href="{{ url_for('auth.login') }}">Sign in</a>
-          <a class="btn btn-primary btn-compact" href="{{ url_for('auth.register') }}">Get started</a>
-        {% endif %}
+        <a href="{{ url_for('main.landing') }}#how">How it works</a>
+        <a href="{{ url_for('main.learn') }}">Learn</a>
+        <a href="{{ url_for('main.about') }}">About</a>
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a class="btn btn-primary btn-compact" href="{{ url_for('auth.register') }}">Get started</a>
         <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">Theme</button>
       </nav>
     </div>
   </header>
-
-  <main class="container page-main">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-stack">
-          {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </main>
-
+  <div class="container">
+{% endif %}
+    <main class="{% if current_user %}app-main{% else %}page-main{% endif %}">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+{% if current_user %}
+  </div>
+</div>
+{% else %}
+  </div>
   <footer class="site-footer">
     <div class="container">
       Academic prototype · Results are guidance, not a guarantee.
       <a href="{{ url_for('main.about') }}">About the model</a>
     </div>
   </footer>
+{% endif %}
 
   <div id="scan-overlay" class="scan-overlay" hidden>
     <div class="scan-overlay-card">
-      <p class="scan-kicker">Checking this now</p>
-      <h2>Looking at suspicious characteristics</h2>
+      <p class="scan-kicker">Analysing your email</p>
+      <h2>Looking for phishing indicators</h2>
       <div class="scan-progress" aria-hidden="true"></div>
-      <ol class="scan-steps">
-        <li class="done">Received</li>
-        <li class="active">Extracting features</li>
-        <li>Checking risk</li>
+      <ul class="scan-steps">
+        <li class="done">Email received</li>
+        <li class="done">Extracting email features</li>
+        <li class="active">Checking URLs and sender information</li>
+        <li>Evaluating phishing indicators</li>
         <li>Preparing explanation</li>
-      </ol>
-      <p class="muted">This usually takes a few seconds.</p>
+      </ul>
+      <p class="muted" style="margin:1rem 0 0;">This usually takes a few seconds.</p>
     </div>
   </div>
   <script src="{{ url_for('static', filename='js/theme.js') }}"></script>

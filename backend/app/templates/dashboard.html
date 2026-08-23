@@ -1,23 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Activity{% endblock %}
+{% block title %}Dashboard{% endblock %}
 {% block content %}
-<h1 class="page-title">{{ greeting }}, {{ display_name }}.</h1>
-<p class="muted" style="margin-top:-0.35rem;margin-bottom:1.25rem;">Here's your recent activity.</p>
-
-<div class="grid-3" style="margin-bottom:1.5rem;">
-  <div class="stat"><div class="label">Scans</div><div class="value">{{ stats.total }}</div></div>
-  <div class="stat warn"><div class="label">Suspicious</div><div class="value">{{ stats.suspicious }}</div></div>
-  <div class="stat danger"><div class="label">Phishing</div><div class="value">{{ stats.phishing }}</div></div>
-</div>
+<h1 class="page-title">{{ greeting }}.</h1>
+<p class="lede" style="margin-bottom:1.25rem;">
+  Stay cautious. Check suspicious emails before interacting with them.
+</p>
 
 <div class="cta-row" style="margin-bottom:1.5rem;">
-  <a class="btn btn-primary" href="{{ url_for('main.scan_url') }}">Check something</a>
+  <a class="btn btn-primary" href="{{ url_for('main.scan') }}">+ Analyse email</a>
+  <a class="btn btn-ghost" href="{{ url_for('main.scan_url') }}">Check a URL</a>
+</div>
+
+<h2 style="font-size:1.05rem;margin:0 0 0.75rem;color:var(--muted);font-weight:600;">Security overview</h2>
+<div class="grid-4" style="margin-bottom:1.5rem;">
+  <div class="stat"><div class="label">Scanned</div><div class="value">{{ stats.total }}</div></div>
+  <div class="stat danger"><div class="label">Phishing</div><div class="value">{{ stats.phishing }}</div></div>
+  <div class="stat warn"><div class="label">Suspicious</div><div class="value">{{ stats.suspicious }}</div></div>
+  <div class="stat ok"><div class="label">Safe</div><div class="value">{{ stats.safe }}</div></div>
 </div>
 
 <div class="grid-2" style="margin-bottom:1.5rem;">
   <section class="panel">
     <h2>Your scanning activity</h2>
-    <p class="muted" style="margin-top:-0.4rem;">Last 14 days. Empty days mean no scans yet.</p>
+    <p class="muted" style="margin-top:-0.35rem;">Last 14 days from your real scan history.</p>
     <div class="trend" aria-hidden="true">
       {% for d in trend %}
       <div class="trend-col" title="{{ d.label }}: {{ d.total }} scans">
@@ -39,13 +44,13 @@
       {% endfor %}
     </ul>
     {% else %}
-    <p class="muted">Findings appear here after you run checks.</p>
+    <p class="muted">Findings appear after you run analyses.</p>
     {% endif %}
   </section>
 </div>
 
 <section class="panel">
-  <h2>Recent scans</h2>
+  <h2>Recent analyses</h2>
   {% if recent_scans %}
   <div class="scan-list">
     {% for s in recent_scans %}
@@ -57,7 +62,7 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="muted">No checks yet. Paste a link or email to get started.</p>
+  <p class="muted">No analyses yet. Start with a suspicious email or link.</p>
   {% endif %}
 </section>
 {% endblock %}

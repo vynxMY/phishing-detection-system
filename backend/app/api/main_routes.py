@@ -42,33 +42,33 @@ SIGNAL_LABELS = {
 
 
 def verdict_for(classification: str) -> dict:
-    """Human-first copy. Probability stays secondary."""
+    """Human-first copy. Decision → evidence → action. Probability stays secondary."""
     c = (classification or "").lower()
     if c in ("phishing", "high_risk"):
         return {
             "tone": "phishing",
-            "headline": "This looks like phishing",
-            "verdict": "Likely phishing",
+            "headline": "This email is likely phishing.",
+            "verdict": "High risk",
             "risk_label": "High risk",
             "lead": "We found several characteristics that are commonly associated with phishing.",
-            "recommendation": "Don't enter personal information, and verify the sender through another channel.",
+            "recommendation": "Don't click links or provide personal information.",
         }
     if c == "suspicious":
         return {
             "tone": "suspicious",
-            "headline": "This deserves a closer look",
+            "headline": "This deserves a closer look.",
             "verdict": "Suspicious",
-            "risk_label": "Medium risk",
-            "lead": "We found some unusual characteristics, but there isn't enough evidence to confidently call it phishing.",
-            "recommendation": "Avoid entering sensitive information until you verify the link or sender.",
+            "risk_label": "Suspicious",
+            "lead": "We found unusual characteristics, but there isn't enough evidence to confidently call it phishing.",
+            "recommendation": "Avoid entering sensitive information until you verify the sender.",
         }
     return {
         "tone": "safe",
-        "headline": "This looks safe",
-        "verdict": "Looks safe",
-        "risk_label": "Low risk",
+        "headline": "This looks safe.",
+        "verdict": "Safe",
+        "risk_label": "Safe",
         "lead": "We didn't find strong indicators associated with phishing.",
-        "recommendation": "Still be careful: no automated detector can guarantee that a website or message is completely safe.",
+        "recommendation": "Still be careful: no automated detector can guarantee complete safety.",
     }
 
 
@@ -147,7 +147,7 @@ def _user_scans():
 @main_bp.route("/")
 def landing():
     if g.user:
-        return redirect(url_for("main.scan_url"))
+        return redirect(url_for("main.dashboard"))
     return render_template("landing.html", lab=load_lab_metrics())
 
 

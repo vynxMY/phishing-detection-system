@@ -1,46 +1,73 @@
 {% extends "base.html" %}
-{% block title %}Learn to spot phishing{% endblock %}
+{% block title %}Awareness centre{% endblock %}
 {% block content %}
-<h1 class="page-title">Learn to spot phishing</h1>
-<p class="muted" style="margin-top:0;margin-bottom:1.25rem;">
-  Short lessons you can use even when PhishGuard is not open.
+<h1 class="page-title">Awareness centre</h1>
+<p class="lede" style="margin-bottom:1.25rem;">
+  Learn how to recognise phishing before you encounter it.
 </p>
 
 <div class="learn-grid">
   <article>
-    <h3>What is phishing?</h3>
-    <p>Someone pretends to be a trusted person or company so you will click, log in, or send money.</p>
+    <h3>Fake login pages</h3>
+    <p>Learn how attackers steal credentials with lookalike sites.</p>
+    <p style="margin-top:0.75rem;"><a href="#fake-login">Learn</a></p>
   </article>
   <article>
-    <h3>Fake websites</h3>
-    <p>A page can look identical to a bank or email login. The address bar is the part that matters.</p>
-  </article>
-  <article>
-    <h3>Suspicious links</h3>
-    <p>Hover before you click. Extra subdomains, misspellings, and IP addresses are common tricks.</p>
+    <h3>Suspicious URLs</h3>
+    <p>Learn how fake domains imitate real organisations.</p>
+    <p style="margin-top:0.75rem;"><a href="#urls">Learn</a></p>
   </article>
   <article>
     <h3>Urgency &amp; threats</h3>
-    <p>“Account suspended”, “final notice”, “within 24 hours” are designed to skip your caution.</p>
+    <p>Spot pressure tactics designed to skip your caution.</p>
+    <p style="margin-top:0.75rem;"><a href="#urgency">Learn</a></p>
   </article>
   <article>
-    <h3>Fake login pages</h3>
-    <p>Never enter a password from an unexpected email. Open the official site yourself.</p>
-  </article>
-  <article>
-    <h3>Impersonation</h3>
-    <p>Display names can be faked. Compare the From domain with Reply-To when you can see headers.</p>
+    <h3>Sender impersonation</h3>
+    <p>Display names can be faked — check the real address.</p>
+    <p style="margin-top:0.75rem;"><a href="#sender">Learn</a></p>
   </article>
   <article>
     <h3>Suspicious attachments</h3>
-    <p>Unexpected invoices, “resume” files, and double extensions such as <code>.pdf.exe</code> are high risk.</p>
+    <p>Unexpected invoices and double extensions are high risk.</p>
+    <p style="margin-top:0.75rem;"><a href="#attachments">Learn</a></p>
+  </article>
+  <article>
+    <h3>What is phishing?</h3>
+    <p>Someone pretends to be trusted so you click, log in, or pay.</p>
+    <p style="margin-top:0.75rem;"><a href="#what">Learn</a></p>
   </article>
 </div>
 
-<section class="panel" style="margin-top:1.5rem;">
+<section class="panel" id="urls" style="margin-top:1.5rem;">
   <h2>Which part looks suspicious?</h2>
   <p class="example-url">https://<mark>paypal.account-security.example.com</mark>/login</p>
   <p>The highlighted host is not PayPal. Attackers often put a trusted brand in a subdomain while the real domain is theirs.</p>
-  <p class="muted">PhishGuard’s explanations look for this kind of URL structure, plus urgent language and sender mismatch.</p>
+</section>
+
+<section class="panel" id="fake-login" style="margin-top:1rem;">
+  <h2>Fake login pages</h2>
+  <p>A page can look identical to a bank or email login. Open the official site yourself instead of following unexpected links.</p>
+</section>
+
+<section class="panel" id="urgency" style="margin-top:1rem;">
+  <h2>Urgency &amp; threats</h2>
+  <p>“Account suspended”, “final notice”, “within 24 hours” are designed to make you act before thinking.</p>
+</section>
+
+<section class="panel" id="sender" style="margin-top:1rem;">
+  <h2>Sender impersonation</h2>
+  <p>Compare the From domain with Reply-To when headers are available. Trusted names can sit on untrusted addresses.</p>
+</section>
+
+<section class="panel" id="attachments" style="margin-top:1rem;">
+  <h2>Suspicious attachments</h2>
+  <p>Unexpected invoices, “resume” files, and double extensions such as <code>.pdf.exe</code> deserve extra caution.</p>
+</section>
+
+<section class="panel" id="what" style="margin-top:1rem;">
+  <h2>What is phishing?</h2>
+  <p>Phishing is social engineering: the attacker wants access, money, or data by impersonating someone you trust.</p>
+  <p class="muted" style="margin-bottom:0;">After a PhishGuard scan, use <strong>Learn why this was suspicious</strong> on the result page to connect detection with these lessons.</p>
 </section>
 {% endblock %}

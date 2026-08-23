@@ -57,8 +57,10 @@ def test_reports_and_history_pages():
     assert client.get("/history").status_code == 200
     assert client.get("/reports").status_code == 200
     assert client.get("/learn").status_code == 200
-    assert b"Learn to spot phishing" in client.get("/learn").data
+    assert b"Awareness centre" in client.get("/learn").data
     assert client.get("/about").status_code == 200
+    assert client.get("/dashboard").status_code == 200
+    assert b"Analyse email" in client.get("/scan").data
 
 
 def test_login_hidden_next_field():

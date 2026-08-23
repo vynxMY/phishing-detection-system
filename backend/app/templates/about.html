@@ -2,24 +2,35 @@
 {% block title %}About{% endblock %}
 {% block content %}
 <h1 class="page-title">About PhishGuard</h1>
-<p class="lede muted">
-  PhishGuard is an explainable phishing detection system designed to help users identify suspicious URLs and emails.
+<p class="lede" style="margin-bottom:1.25rem;">
+  An explainable phishing detection system that helps people identify suspicious URLs and emails — then understand why and what to do next.
 </p>
 
-<section class="panel" style="margin:1.25rem 0;">
+<section class="panel" style="margin-bottom:1rem;">
   <h2>How detection works</h2>
-  <div class="how-grid">
-    <div class="how-step"><span class="n">1</span><div>Input — you paste a URL or email.</div></div>
-    <div class="how-step"><span class="n">2</span><div>Feature extraction — TF-IDF, URL characteristics, and metadata.</div></div>
-    <div class="how-step"><span class="n">3</span><div>Machine learning prediction — Logistic Regression.</div></div>
-    <div class="how-step"><span class="n">4</span><div>Explainability — the signals that influenced the decision.</div></div>
-    <div class="how-step"><span class="n">5</span><div>User recommendation — what you should do next.</div></div>
+  <div class="flow-steps" style="margin-top:0.75rem;">
+    <div class="flow-step">
+      <span class="n">01</span>
+      <div><strong>Submit</strong>Paste an email or URL into the web app.</div>
+    </div>
+    <div class="flow-step">
+      <span class="n">02</span>
+      <div><strong>Analyse</strong>Extract TF-IDF, URL features, and metadata.</div>
+    </div>
+    <div class="flow-step">
+      <span class="n">03</span>
+      <div><strong>Detect</strong>Logistic Regression evaluates phishing risk.</div>
+    </div>
+    <div class="flow-step">
+      <span class="n">04</span>
+      <div><strong>Understand</strong>See why it was flagged and what you should do.</div>
+    </div>
   </div>
 </section>
 
 <section class="panel">
   <h2>Model</h2>
-  <p>Logistic Regression is the single main model.</p>
+  <p>Single main model: <strong>Logistic Regression</strong>.</p>
   <p><strong>Features</strong><br>TF-IDF, URL characteristics, and metadata.</p>
   {% if lab %}
   <p><strong>Held-out test-set metrics ({{ lab.version }})</strong><br>
